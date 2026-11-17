@@ -14,6 +14,14 @@ from sklearn.svm import LinearSVC, SVC
 from .config import LABELS, LABELS_EN, LABELS_ID, MODELS_DIR, RANDOM_SEED
 from .preprocessing import load_stopwords, preprocess_text
 
+MODEL_FILE_SLUGS: Dict[str, str] = {
+    "SVC": "svc",
+    "LogisticRegression": "logistic_regression",
+    "MultinomialNB": "multinomial_nb",
+    "RandomForest": "random_forest",
+    "GradientBoosting": "gradient_boosting",
+}
+
 
 def get_classifier_unigram(classify_with: str, random_state: int = RANDOM_SEED):
     """Mengembalikan lima model klasifikasi untuk konfigurasi Medan Makna Unigram (1,1)."""
@@ -164,6 +172,103 @@ def load_compact_svm_bundles(
         if path.exists():
             bundles[key] = joblib.load(path)
     return bundles
+
+
+def _model_slug(model_key: str) -> str:
+    return MODEL_FILE_SLUGS.get(model_key, model_key.lower())
+
+
+def save_vectorizer(
+    vectorizer: TfidfVectorizer,
+    scheme: str,
+    models_dir: Optional[Union[str, Path]] = None,
+) -> Path:
+    """Menyimpan TfidfVectorizer terlatih ke models/all_models/ untuk inferensi ulang ke-5 model."""
+    base = Path(models_dir) if models_dir else MODELS_DIR
+    out_path = base / "all_models" / f"vectorizer_{scheme}.joblib"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(vectorizer, out_path, compress=3)
+    return out_path
+
+
+def save_reusable_model(
+    classifier: Any,
+    model_key: str,
+    scheme: str,
+    ngram_range: Tuple[int, int],
+    accuracy: Optional[float] = None,
+    models_dir: Optional[Union[str, Path]] = None,
+) -> Path:
+    """Menyimpan model klasifikasi terlatih (semua 5 algoritma) ke models/all_models/ sebagai .joblib."""
+    base = Path(models_dir) if models_dir else MODELS_DIR
+    slug = _model_slug(model_key)
+    out_path = base / "all_models" / f"{slug}_{scheme}.joblib"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "model_key": model_key,
+        "scheme": scheme,
+        "ngram_range": ngram_range,
+        "accuracy": float(accuracy) if accuracy is not None else None,
+        "classifier": classifier,
+    }
+    joblib.dump(payload, out_path, compress=3)
+    return out_path
+
+
+def load_reusable_model(
+    model_key: str,
+    scheme: str = "frame_semantik",
+    models_dir: Optional[Union[str, Path]] = None,
+) -> Dict[str, Any]:
+    """Memuat model terlatih (.joblib) beserta TfidfVectorizer pasangannya dari models/all_models/."""
+    base = Path(models_dir) if models_dir else MODELS_DIR
+    all_dir = base / "all_models"
+    slug = _model_slug(model_key)
+    model_path = all_dir / f"{slug}_{scheme}.joblib"
+    vec_path = all_dir / f"vectorizer_{scheme}.joblib"
+
+    if not model_path.exists():
+        raise FileNotFoundError(f"Berkas model belum ditemukan: {model_path}")
+    if not vec_path.exists():
+        raise FileNotFoundError(f"Berkas vectorizer belum ditemukan: {vec_path}")
+
+    payload = dict(joblib.load(model_path))
+    payload["vectorizer"] = joblib.load(vec_path)
+    return payload
+
+
+def predict_with_reusable_model(
+    text: str,
+    model_key: str,
+    scheme: str = "frame_semantik",
+    models_dir: Optional[Union[str, Path]] = None,
+    stopwords: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """Melakukan pra-pemrosesan dan prediksi kategori menggunakan salah satu dari 5 model .joblib tersimpan."""
+    bundle = load_reusable_model(model_key=model_key, scheme=scheme, models_dir=models_dir)
+    if scheme == "medan_makna":
+        stops = stopwords if stopwords is not None else load_stopwords()
+        cleaned = preprocess_text(text, stopwords=stops)
+    elif scheme == "frame_semantik":
+        cleaned = preprocess_text(text, stopwords=None)
+    else:
+        raise ValueError(f"Skema tidak dikenal: {scheme}. Gunakan 'frame_semantik' atau 'medan_makna'.")
+
+    clf = bundle["classifier"]
+    vec = bundle["vectorizer"]
+    X = vec.transform([cleaned])
+    pred_label = int(clf.predict(X)[0])
+
+    return {
+        "model_key": bundle["model_key"],
+        "scheme": scheme,
+        "cleaned_text": cleaned,
+        "predicted_label": pred_label,
+        "predicted_category": LABELS.get(pred_label, str(pred_label)),
+        "predicted_category_id": LABELS_ID.get(pred_label, str(pred_label)),
+        "predicted_category_en": LABELS_EN.get(pred_label, str(pred_label)),
+        "validation_accuracy": bundle.get("accuracy"),
+    }
 
 
 def extract_features_and_svm_weights(

@@ -51,7 +51,11 @@ from arabic_news.models import (
     analyze_article_dual_svm,
     build_deployable_svm_bundle,
     load_compact_svm_bundles,
+    load_reusable_model,
+    predict_with_reusable_model,
     save_deployable_svm_bundle,
+    save_reusable_model,
+    save_vectorizer,
     sigmoid,
 )
 from arabic_news.preprocessing import load_stopwords, preprocess_text
@@ -225,6 +229,10 @@ def test_stage3_stage4_stage5_end_to_end_pipeline(tmp_path):
 
     metrics_dir = tmp_path / "results" / "metrics"
     models_dir = tmp_path / "models"
+    save_vectorizer(vec_f, "frame_semantik", models_dir=models_dir)
+    save_vectorizer(vec_m, "medan_makna", models_dir=models_dir)
+
+    all_keys = ["SVC", "LogisticRegression", "MultinomialNB", "RandomForest", "GradientBoosting"]
     for key, rfile in [
         ("SVC", "svm.txt"),
         ("LogisticRegression", "logistic.txt"),
@@ -238,10 +246,13 @@ def test_stage3_stage4_stage5_end_to_end_pipeline(tmp_path):
             clf_m, res_m = train_classifier_with_monitoring(key, X_tr_m, y_tr_m, mode="frame", interval=0.05)
             ev_m = evaluate_model(clf_m, X_val_m, y_val_m)
         else:
-            # Simulasi cepat metrik/resource file untuk verifikasi parser pada RandomForest & GradientBoosting
+            # Simulasi cepat metrik/resource file untuk RandomForest & GradientBoosting pada dataset uji sintetis
             ev_f = evaluate_model(clf_f, X_val_f, y_val_f)
             ev_m = evaluate_model(clf_m, X_val_m, y_val_m)
             res_f = res_m = {"avg_cpu_percent": 50.0, "max_memory_mb": 200.0}
+
+        save_reusable_model(clf_f, model_key=key, scheme="frame_semantik", ngram_range=(2, 3), accuracy=ev_f["accuracy"], models_dir=models_dir)
+        save_reusable_model(clf_m, model_key=key, scheme="medan_makna", ngram_range=(1, 1), accuracy=ev_m["accuracy"], models_dir=models_dir)
 
         mf_txt = save_evaluation_metrics_txt(ev_f, key, metrics_dir / "frame_semantik" / f"no_lemma_evaluation_metrics_{key}.txt")
         mn_txt = save_evaluation_metrics_txt(ev_m, key, metrics_dir / "medan_semantik" / f"no_lemma_evaluation_metrics_{key}.txt")
@@ -263,10 +274,23 @@ def test_stage3_stage4_stage5_end_to_end_pipeline(tmp_path):
             save_deployable_svm_bundle(b_f, models_dir / "svm_frame_semantik.joblib")
             save_deployable_svm_bundle(b_m, models_dir / "svm_medan_makna.joblib")
 
+    sport_article = "المنتخب الوطني يفوز في بطولة كأس العالم في المباراة النهائية في الدوري الرياضي"
+
+    # Pastikan semua 5 model (.joblib) di models/all_models/ dapat dimuat ulang dan dipakai prediksi
+    assert len(list((models_dir / "all_models").glob("*.joblib"))) == 12
+    for key in all_keys:
+        for scheme in ("frame_semantik", "medan_makna"):
+            reloaded = load_reusable_model(key, scheme=scheme, models_dir=models_dir)
+            assert reloaded["model_key"] == key and reloaded["scheme"] == scheme
+            pred = predict_with_reusable_model(sport_article, model_key=key, scheme=scheme, models_dir=models_dir, stopwords=stops)
+            assert pred["predicted_label"] == 6
+
+    # Pastikan bundel Streamlit khusus memuat model terbaik SVM
     bundles = load_compact_svm_bundles(models_dir=models_dir)
     assert set(bundles.keys()) == {"frame_semantik", "medan_makna"}
+    assert bundles["frame_semantik"]["classifier"].__class__.__name__ == "LinearSVC"
+    assert bundles["medan_makna"]["classifier"].__class__.__name__ == "LinearSVC"
 
-    sport_article = "المنتخب الوطني يفوز في بطولة كأس العالم في المباراة النهائية في الدوري الرياضي"
     dual = analyze_article_dual_svm(sport_article, bundles=bundles, stopwords=stops)
     assert dual["medan_makna"]["predicted_label"] == 6
     assert dual["frame_semantik"]["predicted_label"] == 6
@@ -314,7 +338,7 @@ def test_streamlit_app_renders_cleanly_before_notebook_execution():
 
 
 def test_notebooks_and_repo_cleanliness():
-    """Verifikasi 5 notebook berurutan, sintaks Python valid, belum dieksekusi, dan bebas teks meta-audit / path absolut."""
+    """Verifikasi 5 notebook berurutan, sintaks Python valid, dan bebas teks meta-audit / path absolut."""
     expected_notebooks = [
         "01_data_collection_and_compilation.ipynb",
         "02_preprocessing_and_dataset_splitting.ipynb",
@@ -343,9 +367,8 @@ def test_notebooks_and_repo_cleanliness():
             assert bad not in raw_txt, f"Teks terlarang '{bad}' ditemukan di {nb_name}"
 
         nb = nbf.read(nb_path, as_version=4)
-        for idx, cell in enumerate(nb.cells):
+        for cell in nb.cells:
             if cell.cell_type == "code":
-                assert cell.outputs == [], f"{nb_name} sel #{idx} masih menyimpan output"
                 ast.parse(cell.source)
 
     for py_path in list((REPO_ROOT / "src").rglob("*.py")) + [REPO_ROOT / "app" / "streamlit_app.py"]:

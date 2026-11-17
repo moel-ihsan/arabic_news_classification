@@ -39,8 +39,9 @@ data/**/*.tsv
 data/**/*.zip
 data/**/*.xlsx
 
-# Cadangan / artefak model mentah berukuran besar (model hasil pelatihan disimpan di models/)
+# Cadangan / artefak model lengkap lokal berukuran besar (model deployable Streamlit ada di models/svm_*.joblib)
 modelsssss/
+models/all_models/
 models/frame_semantiks/*.pkl
 models/**/*.pkl
 models/**/*.h5

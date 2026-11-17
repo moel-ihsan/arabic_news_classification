@@ -83,7 +83,7 @@ arabic_news_classification/
 └── requirements.txt
 ```
 
-*(Berkas korpus `data/basic_articles_dataset.csv` berukuran besar dan artefak `.pkl` mentah multi-gigabyte dikecualikan melalui `.gitignore` demi memenuhi batas ukuran GitHub serta menjaga hak cipta portal berita asal. Seluruh keluaran pada direktori `results/` (`stats/`, `lexicons/`, `metrics/`, `figures/`) dan `models/` (`svm_medan_makna.joblib`, `svm_frame_semantik.joblib`) dihasilkan secara dinamis dari sumber tunggal `data/basic_articles_dataset.csv` dan `data/stopwords.txt` saat menjalankan kelima notebook secara berurutan.)*
+*(Berkas korpus `data/basic_articles_dataset.csv` berukuran besar dan artefak model lengkap lokal di `models/all_models/` dikecualikan melalui `.gitignore` demi memenuhi batas ukuran GitHub serta menjaga hak cipta portal berita asal. Seluruh keluaran pada direktori `results/` dan `models/` dihasilkan secara dinamis dari sumber tunggal `data/basic_articles_dataset.csv` dan `data/stopwords.txt` saat menjalankan kelima notebook secara berurutan; aplikasi Streamlit memakai bundel model terbaik SVM yaitu `models/svm_medan_makna.joblib` dan `models/svm_frame_semantik.joblib`.)*
 
 ---
 
@@ -114,7 +114,7 @@ Kelima notebook disusun berurutan sesuai tahapan metodologi penelitian dan mempr
 1. `notebooks/01_data_collection_and_compilation.ipynb` — Spesifikasi *web scraper* 6 portal berita Arab, simulasi parsing HTML ke `.txt`, dan komputasi distribusi awal korpus (`results/stats/` & `results/figures/`).
 2. `notebooks/02_preprocessing_and_dataset_splitting.ipynb` — Pembersihan teks Arab, percabangan *stopword removal* (Medan Makna) vs retensi preposisi (Semantik *Frame*), pembagian data deterministik (`random_state=42`), serta pemilihan 11 artikel sampel uji ke `results/stats/sample_11_test_articles.csv`.
 3. `notebooks/03_corpus_trends_and_linguistic_stats.ipynb` — Komputasi total token sebelum/sesudah *stopword removal*, tipe kosakata unik Arab vs Non-Arab (`results/stats/corpus_summary.json`), serta Top-1000 *Unigram*, *Bigram*, dan *Trigram* tiap kategori (`results/lexicons/`).
-4. `notebooks/04_model_training_and_evaluation.ipynb` — Pelatihan, pemantauan CPU/RAM via `psutil`, dan evaluasi penuh 5 algoritma klasifikasi untuk kedua skema (`results/metrics/`), grafik perbandingan & *Confusion Matrix* (`results/figures/`), serta penyimpanan model terbaik SVM terlatih ke `models/`.
+4. `notebooks/04_model_training_and_evaluation.ipynb` — Pelatihan, pemantauan CPU/RAM via `psutil`, dan evaluasi penuh 5 algoritma klasifikasi untuk kedua skema (`results/metrics/`), penyimpanan seluruh ke-5 model & vektorizer ke `models/all_models/*.joblib` agar dapat dipakai ulang, serta penyimpanan bundel terbaik SVM (`models/svm_*.joblib`) khusus untuk aplikasi Streamlit.
 5. `notebooks/05_semantic_field_and_frame_extraction.ipynb` — Pembentukan kamus bobot TF-IDF Semantik *Frame* (`results/lexicons/tfidf_top1000/`), ekstraksi ganda Medan Makna & Semantik *Frame* pada 11 artikel uji menggunakan model SVM hasil Notebook 04, analisis koefisien SVM & skor *Sigmoid*, serta visualisasi *WordCloud*.
 
 Untuk memverifikasi seluruh komponen pipeline, notebook, dan aplikasi Streamlit secara otomatis:
