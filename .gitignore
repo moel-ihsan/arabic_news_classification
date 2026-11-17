@@ -1,0 +1,47 @@
+# Sistem operasi & editor
+.DS_Store
+._*
+Thumbs.db
+.vscode/
+.idea/
+
+# Lingkungan Python & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Environment variables & rahasia
+.env
+.env.*
+
+# Naskah lokal & dokumentasi internal (tidak di-upload ke GitHub)
+artikel dengan medan makna.md
+tesis dengan frame semantik.md
+docs/
+
+# Dataset utama berukuran besar (disimpan lokal di data/, tidak di-upload ke GitHub)
+data/basic_articles_dataset.csv
+data/**/*.csv
+data/**/*.tsv
+data/**/*.zip
+data/**/*.xlsx
+
+# Cadangan / artefak model mentah berukuran besar (model hasil pelatihan disimpan di models/)
+modelsssss/
+models/frame_semantiks/*.pkl
+models/**/*.pkl
+models/**/*.h5
+models/**/*.pt
