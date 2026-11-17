@@ -11,9 +11,11 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 import matplotlib
 
 matplotlib.use("Agg")
+import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy import sparse
 import seaborn as sns
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -113,14 +115,42 @@ def _checkpoint_exists(
     return all(p.exists() for p in _checkpoint_paths(model_key, res_file, scheme, metrics_dir, models_dir))
 
 
+def _save_sparse_cache(cache_dir: Path, X_tr, y_tr, X_val, y_val) -> None:
+    """Menyimpan matriks sparse TF-IDF terhitung agar resume berikutnya tidak perlu membaca CSV atau memfit ulang."""
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    sparse.save_npz(cache_dir / "X_tr.npz", X_tr, compressed=False)
+    sparse.save_npz(cache_dir / "X_val.npz", X_val, compressed=False)
+    np.save(cache_dir / "y_tr.npy", np.asarray(y_tr))
+    np.save(cache_dir / "y_val.npy", np.asarray(y_val))
+
+
 def _load_split_and_vectorize_scheme(
     dataset_path: Path,
     scheme: str,
     models_dir: Path,
     compress: int = 1,
-) -> Tuple[Any, Any, Any, Optional[List[str]]]:
-    """Memuat satu skema secara terpisah lalu langsung membebaskan DataFrame mentah dari RAM."""
+    force: bool = False,
+    need_svc: bool = True,
+) -> Tuple[Any, Any, Any, Any, Any, List[str]]:
+    """Memuat matriks TF-IDF dari cache sparse / vektorizer tersimpan, atau membangunnya bila belum ada."""
     t0 = time.perf_counter()
+    cache_dir = models_dir / "all_models" / f"_tfidf_cache_{scheme}"
+    cache_files = [
+        cache_dir / "X_tr.npz",
+        cache_dir / "X_val.npz",
+        cache_dir / "y_tr.npy",
+        cache_dir / "y_val.npy",
+    ]
+
+    if (not force) and (not need_svc) and all(p.exists() for p in cache_files):
+        _log(f"[{scheme}] Memuat cache matriks TF-IDF dari {cache_dir.name} (tanpa fit/load vectorizer)...")
+        X_tr = sparse.load_npz(cache_dir / "X_tr.npz")
+        X_val = sparse.load_npz(cache_dir / "X_val.npz")
+        y_tr = pd.Series(np.load(cache_dir / "y_tr.npy"))
+        y_val = pd.Series(np.load(cache_dir / "y_val.npy"))
+        _log(f"Cache TF-IDF siap dalam {time.perf_counter() - t0:.1f}s | Dimensi latih={X_tr.shape}")
+        return None, X_tr, y_tr, X_val, y_val, []
+
     _log(f"Membaca kolom [label, text] dari {dataset_path.name} untuk {scheme}...")
     df_raw = pd.read_csv(dataset_path, usecols=["label", "text"], low_memory=False)
 
@@ -156,14 +186,33 @@ def _load_split_and_vectorize_scheme(
     else:
         raise ValueError(f"Skema tidak dikenal: {scheme}")
 
-    _log(f"Vektorisasi TF-IDF {ngram_range} (train={len(tr_texts):,}, val={len(val_texts):,})...")
-    vec = create_tfidf_vectorizer(ngram_range=ngram_range)
-    X_tr = vec.fit_transform(tr_texts)
-    del tr_texts
-    gc.collect()
+    vec_path = models_dir / "all_models" / f"vectorizer_{scheme}.joblib"
+    if (not force) and vec_path.exists():
+        _log(f"[{scheme}] Memuat vektorizer tersimpan {vec_path.name} (melewati fit TF-IDF, hanya transform)...")
+        vec = joblib.load(vec_path)
+        X_tr = vec.transform(tr_texts)
+        del tr_texts
+        gc.collect()
+        X_val = vec.transform(val_texts)
+    else:
+        _log(f"Fitting TF-IDF {ngram_range} (train={len(tr_texts):,}, val={len(val_texts):,})...")
+        vec = create_tfidf_vectorizer(ngram_range=ngram_range)
+        X_tr = vec.fit_transform(tr_texts)
+        del tr_texts
+        gc.collect()
+        X_val = vec.transform(val_texts)
+        save_vectorizer(vec, scheme, models_dir=models_dir, compress=compress)
 
-    X_val = vec.transform(val_texts)
-    save_vectorizer(vec, scheme, models_dir=models_dir, compress=compress)
+    _log(f"[{scheme}] Menyimpan cache sparse TF-IDF ke {cache_dir.name} untuk resume cepat...")
+    _save_sparse_cache(cache_dir, X_tr, y_tr, X_val, y_val)
+
+    if not need_svc:
+        # Kosakata dict 30M+ fitur tidak lagi dibutuhkan; bebaskan segera sebelum pelatihan tree ensemble
+        del vec, val_texts
+        vec = None
+        val_texts = []
+        gc.collect()
+
     _log(f"Siap dalam {time.perf_counter() - t0:.1f}s | Dimensi latih={X_tr.shape}")
     return vec, X_tr, y_tr, X_val, y_val, val_texts
 
@@ -190,12 +239,15 @@ def run_scheme(
         _log(f"[{scheme}] Semua model terpilih sudah tersedia (lewati berkat checkpoint).")
         return
 
+    need_svc = any(m[0] == "SVC" for m in pending)
     _log(f"=== Mulai skema: {cfg['label']} | Target: {[m[0] for m in pending]} ===")
     vec, X_tr, y_tr, X_val, y_val, val_texts = _load_split_and_vectorize_scheme(
         dataset_path=dataset_path,
         scheme=scheme,
         models_dir=models_dir,
         compress=compress,
+        force=force,
+        need_svc=need_svc,
     )
 
     try:

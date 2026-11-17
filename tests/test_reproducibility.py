@@ -408,8 +408,9 @@ def test_cli_train_all_models_resumable(tmp_path):
     assert (figures_dir / "model_comparison.png").exists()
     assert (figures_dir / "confusion_matrix_svm_frame.png").exists()
 
-    # Tahap 2: resume otomatis untuk menambah MultinomialNB tanpa melatih ulang SVC/LogReg
+    # Tahap 2: resume otomatis untuk menambah MultinomialNB tanpa melatih ulang SVC/LogReg & tanpa fit ulang TF-IDF
     svc_mtime_before = (models_dir / "svm_frame_semantik.joblib").stat().st_mtime
+    vec_mtime_before = (models_dir / "all_models" / "vectorizer_frame_semantik.joblib").stat().st_mtime
     cli_main([
         "--dataset", str(syn_csv),
         "--models", "SVC", "LogisticRegression", "MultinomialNB",
@@ -418,5 +419,19 @@ def test_cli_train_all_models_resumable(tmp_path):
         "--figures-dir", str(figures_dir),
     ])
     assert (models_dir / "svm_frame_semantik.joblib").stat().st_mtime == svc_mtime_before
+    assert (models_dir / "all_models" / "vectorizer_frame_semantik.joblib").stat().st_mtime == vec_mtime_before
+    assert (models_dir / "all_models" / "_tfidf_cache_frame_semantik" / "X_tr.npz").exists()
     assert (models_dir / "all_models" / "multinomial_nb_medan_makna.joblib").exists()
     assert len(pd.read_csv(metrics_dir / "effectiveness_comparison.csv")) == 3
+
+    # Tahap 3: buktikan jalur cache sparse bekerja (hapus salah satu model lalu resume ulang)
+    (models_dir / "all_models" / "multinomial_nb_frame_semantik.joblib").unlink()
+    cli_main([
+        "--dataset", str(syn_csv),
+        "--models", "MultinomialNB",
+        "--schemes", "frame_semantik",
+        "--metrics-dir", str(metrics_dir),
+        "--models-dir", str(models_dir),
+        "--figures-dir", str(figures_dir),
+    ])
+    assert (models_dir / "all_models" / "multinomial_nb_frame_semantik.joblib").exists()
