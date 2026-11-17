@@ -371,7 +371,52 @@ def test_notebooks_and_repo_cleanliness():
             if cell.cell_type == "code":
                 ast.parse(cell.source)
 
-    for py_path in list((REPO_ROOT / "src").rglob("*.py")) + [REPO_ROOT / "app" / "streamlit_app.py"]:
+    for py_path in (
+        list((REPO_ROOT / "src").rglob("*.py"))
+        + list((REPO_ROOT / "scripts").glob("*.py"))
+        + [REPO_ROOT / "app" / "streamlit_app.py"]
+    ):
         py_txt = py_path.read_text(encoding="utf-8")
         for bad in forbidden_snippets:
             assert bad not in py_txt, f"Teks terlarang '{bad}' ditemukan di {py_path.name}"
+
+
+def test_cli_train_all_models_resumable(tmp_path):
+    """Verifikasi skrip CLI hemat RAM scripts/train_all_models.py mendukung subset model & auto-resume checkpoint."""
+    syn_csv = tmp_path / "syn_corpus.csv"
+    _build_synthetic_11_category_df(per_category=24).to_csv(syn_csv, index=False, encoding="utf-8")
+
+    metrics_dir = tmp_path / "metrics"
+    models_dir = tmp_path / "models"
+    figures_dir = tmp_path / "figures"
+
+    sys.path.insert(0, str(REPO_ROOT))
+    from scripts.train_all_models import main as cli_main
+
+    # Tahap 1: latih model ringan dulu (SVC + LogisticRegression)
+    cli_main([
+        "--dataset", str(syn_csv),
+        "--models", "SVC", "LogisticRegression",
+        "--metrics-dir", str(metrics_dir),
+        "--models-dir", str(models_dir),
+        "--figures-dir", str(figures_dir),
+    ])
+    assert (models_dir / "svm_frame_semantik.joblib").exists()
+    assert (models_dir / "svm_medan_makna.joblib").exists()
+    assert (models_dir / "all_models" / "logistic_regression_frame_semantik.joblib").exists()
+    assert len(pd.read_csv(metrics_dir / "effectiveness_comparison.csv")) == 2
+    assert (figures_dir / "model_comparison.png").exists()
+    assert (figures_dir / "confusion_matrix_svm_frame.png").exists()
+
+    # Tahap 2: resume otomatis untuk menambah MultinomialNB tanpa melatih ulang SVC/LogReg
+    svc_mtime_before = (models_dir / "svm_frame_semantik.joblib").stat().st_mtime
+    cli_main([
+        "--dataset", str(syn_csv),
+        "--models", "SVC", "LogisticRegression", "MultinomialNB",
+        "--metrics-dir", str(metrics_dir),
+        "--models-dir", str(models_dir),
+        "--figures-dir", str(figures_dir),
+    ])
+    assert (models_dir / "svm_frame_semantik.joblib").stat().st_mtime == svc_mtime_before
+    assert (models_dir / "all_models" / "multinomial_nb_medan_makna.joblib").exists()
+    assert len(pd.read_csv(metrics_dir / "effectiveness_comparison.csv")) == 3

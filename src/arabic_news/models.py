@@ -182,12 +182,13 @@ def save_vectorizer(
     vectorizer: TfidfVectorizer,
     scheme: str,
     models_dir: Optional[Union[str, Path]] = None,
+    compress: int = 3,
 ) -> Path:
     """Menyimpan TfidfVectorizer terlatih ke models/all_models/ untuk inferensi ulang ke-5 model."""
     base = Path(models_dir) if models_dir else MODELS_DIR
     out_path = base / "all_models" / f"vectorizer_{scheme}.joblib"
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(vectorizer, out_path, compress=3)
+    joblib.dump(vectorizer, out_path, compress=compress)
     return out_path
 
 
@@ -198,6 +199,7 @@ def save_reusable_model(
     ngram_range: Tuple[int, int],
     accuracy: Optional[float] = None,
     models_dir: Optional[Union[str, Path]] = None,
+    compress: int = 3,
 ) -> Path:
     """Menyimpan model klasifikasi terlatih (semua 5 algoritma) ke models/all_models/ sebagai .joblib."""
     base = Path(models_dir) if models_dir else MODELS_DIR
@@ -211,7 +213,7 @@ def save_reusable_model(
         "accuracy": float(accuracy) if accuracy is not None else None,
         "classifier": classifier,
     }
-    joblib.dump(payload, out_path, compress=3)
+    joblib.dump(payload, out_path, compress=compress)
     return out_path
 
 

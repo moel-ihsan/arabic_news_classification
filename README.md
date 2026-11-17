@@ -75,8 +75,10 @@ arabic_news_classification/
 │   ├── models.py                             # 5 algoritma klasifikasi, inferensi ganda SVM, & skor Sigmoid
 │   ├── preprocessing.py                      # Cleaning Arab/ASCII, stopwords, & pembentuk teks RTL
 │   └── visualization.py                      # Pencarian font Arab lintas-platform untuk plot & WordCloud
+├── scripts/
+│   └── train_all_models.py                   # Skrip CLI hemat RAM & auto-resume checkpoint untuk Tahap 4
 ├── tests/
-│   └── test_reproducibility.py               # Pengujian otomatis pipeline, notebook, & aplikasi Streamlit
+│   └── test_reproducibility.py               # Pengujian otomatis pipeline, notebook, CLI, & Streamlit
 ├── .gitignore
 ├── LICENSE
 ├── pyproject.toml
@@ -117,7 +119,17 @@ Kelima notebook disusun berurutan sesuai tahapan metodologi penelitian dan mempr
 4. `notebooks/04_model_training_and_evaluation.ipynb` — Pelatihan, pemantauan CPU/RAM via `psutil`, dan evaluasi penuh 5 algoritma klasifikasi untuk kedua skema (`results/metrics/`), penyimpanan seluruh ke-5 model & vektorizer ke `models/all_models/*.joblib` agar dapat dipakai ulang, serta penyimpanan bundel terbaik SVM (`models/svm_*.joblib`) khusus untuk aplikasi Streamlit.
 5. `notebooks/05_semantic_field_and_frame_extraction.ipynb` — Pembentukan kamus bobot TF-IDF Semantik *Frame* (`results/lexicons/tfidf_top1000/`), ekstraksi ganda Medan Makna & Semantik *Frame* pada 11 artikel uji menggunakan model SVM hasil Notebook 04, analisis koefisien SVM & skor *Sigmoid*, serta visualisasi *WordCloud*.
 
-Untuk memverifikasi seluruh komponen pipeline, notebook, dan aplikasi Streamlit secara otomatis:
+*(Opsi cepat & hemat RAM di terminal untuk Tahap 4 dengan dukungan *auto-resume checkpoint* per model:)*
+
+```bash
+# Latih model cepat (SVM, Logistic Regression, Naïve Bayes) terlebih dahulu
+python scripts/train_all_models.py --models SVC LogisticRegression MultinomialNB
+
+# Lanjutkan model tree ensemble sisanya (Random Forest, Gradient Boosting)
+python scripts/train_all_models.py
+```
+
+Untuk memverifikasi seluruh komponen pipeline, notebook, skrip CLI, dan aplikasi Streamlit secara otomatis:
 
 ```bash
 pytest -v
