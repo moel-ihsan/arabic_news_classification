@@ -1,6 +1,8 @@
 # Klasifikasi Artikel Berita Berbahasa Arab Berbasis Medan Makna (*Semantic Field*) dan Semantik *Frame* (*Frame Semantics*)
 
-Repositori resmi penelitian komputasi linguistik dan *Natural Language Processing* (NLP) untuk klasifikasi multi-kelas (**11 kategori**) pada korpus **170.934 artikel berita daring berbahasa Arab** dari **6 portal berita Timur Tengah dan Afrika Utara**. Proyek ini membandingkan secara sistematis dua pendekatan representasi semantik — **Medan Makna (*Semantic Field*)** dan **Semantik *Frame* (*Frame Semantics*)** — serta menyediakan antarmuka demo interaktif berbasis **Streamlit** dengan dukungan penuh teks *Right-to-Left* (RTL).
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://arabic-news-semantics.streamlit.app/)
+
+Repositori resmi penelitian komputasi linguistik dan *Natural Language Processing* (NLP) untuk klasifikasi multi-kelas (**11 kategori**) pada korpus **170.934 artikel berita daring berbahasa Arab** dari **6 portal berita Timur Tengah dan Afrika Utara**. Proyek ini membandingkan secara sistematis dua pendekatan representasi semantik — **Medan Makna (*Semantic Field*)** dan **Semantik *Frame* (*Frame Semantics*)** — serta menyediakan antarmuka demo interaktif berbasis **Streamlit** ([Live Demo](https://arabic-news-semantics.streamlit.app/)) dengan dukungan penuh teks *Right-to-Left* (RTL).
 
 ---
 
@@ -140,7 +142,8 @@ pytest -v
 
 ## Cara Menjalankan Aplikasi Demo Streamlit
 
-Setelah notebook `01`–`05` dijalankan (sehingga `models/` dan `results/` terbentuk), jalankan antarmuka interaktif secara lokal dari root repositori:
+- **Demo Daring (Streamlit Community Cloud)**: https://arabic-news-semantics.streamlit.app/
+- **Menjalankan Secara Lokal** dari root repositori:
 
 ```bash
 streamlit run app/streamlit_app.py
