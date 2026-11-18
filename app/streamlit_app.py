@@ -413,16 +413,16 @@ def _inject_design_system_styles() -> None:
         /* Pill Tabs */
         .stTabs [data-baseweb="tab-list"] {
             background-color: #FFFFFF;
-            padding: 6px;
+            padding: 7px 8px;
             border-radius: 9999px;
             border: 1px solid #E2E8F0;
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-            gap: 6px;
-            margin-bottom: 1.1rem;
+            gap: 8px !important;
+            margin-bottom: 1.15rem;
         }
         .stTabs [data-baseweb="tab"] {
-            border-radius: 9999px;
-            padding: 0.5rem 1.1rem;
+            border-radius: 9999px !important;
+            padding: 0.55rem 1.35rem !important;
             font-weight: 600;
             font-size: 0.9rem;
             color: #475569;
@@ -432,9 +432,39 @@ def _inject_design_system_styles() -> None:
         .stTabs [aria-selected="true"] {
             background-color: #111111 !important;
             color: #FFFFFF !important;
+            border-radius: 9999px !important;
         }
         .stTabs [data-baseweb="tab-highlight"] {
             display: none;
+        }
+
+        /* Compact Bento Metrics inside Prediction Columns */
+        .pred-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.55rem;
+            margin-top: 0.45rem;
+            margin-bottom: 0.9rem;
+        }
+        .pred-metric-chip {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            padding: 0.7rem 0.85rem;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
+        }
+        .pred-metric-label {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: #64748B;
+            margin-bottom: 0.2rem;
+            white-space: nowrap;
+        }
+        .pred-metric-val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.2;
         }
 
         /* Elevated Pill CTA Buttons */
@@ -925,46 +955,59 @@ def _render_classification_tab(
             "yang dikenali oleh kedua model (0 fitur aktif)."
         )
 
+    def _pred_metrics_html(sig_val: str, count_label: str, count_val: str, tfidf_val: str) -> str:
+        return (
+            '<div class="pred-metrics-grid">'
+            f'<div class="pred-metric-chip"><div class="pred-metric-label">Skor Sigmoid</div><div class="pred-metric-val">{sig_val}</div></div>'
+            f'<div class="pred-metric-chip"><div class="pred-metric-label">{count_label}</div><div class="pred-metric-val">{count_val}</div></div>'
+            f'<div class="pred-metric-chip"><div class="pred-metric-label">Bobot TF-IDF</div><div class="pred-metric-val">{tfidf_val}</div></div>'
+            "</div>"
+        )
+
     c1, c2 = st.columns(2)
     with c1:
         if frame_res.get("is_uncategorized"):
             st.warning(
                 "**Prediksi Semantik Frame**: `غير مصنف` — **Tidak Terkategori** *(Uncategorized — 0 frasa aktif)*"
             )
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Skor Sigmoid", "—")
-            m2.metric("Frasa Aktif", "0")
-            m3.metric("Total Bobot TF-IDF", "0.0000")
+            st.markdown(_pred_metrics_html("—", "Frasa Aktif", "0", "0.0000"), unsafe_allow_html=True)
         else:
             top_prob_f = frame_res["category_scores"][0]["sigmoid_percent"]
             st.success(
                 f"**Prediksi Semantik Frame**: `{frame_res['predicted_category']}` "
                 f"— **{frame_res['predicted_category_id']}** ({frame_res['predicted_category_en']})"
             )
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Skor Sigmoid", f"{top_prob_f:.2f}%")
-            m2.metric("Frasa Aktif", f"{frame_res['n_active_features']}")
-            m3.metric("Total Bobot TF-IDF", f"{frame_res['total_tfidf_weight']:.4f}")
+            st.markdown(
+                _pred_metrics_html(
+                    f"{top_prob_f:.2f}%",
+                    "Frasa Aktif",
+                    f"{frame_res['n_active_features']}",
+                    f"{frame_res['total_tfidf_weight']:.4f}",
+                ),
+                unsafe_allow_html=True,
+            )
 
     with c2:
         if medan_res.get("is_uncategorized"):
             st.warning(
                 "**Prediksi Medan Makna**: `غير مصنف` — **Tidak Terkategori** *(Uncategorized — 0 kata aktif)*"
             )
-            n1, n2, n3 = st.columns(3)
-            n1.metric("Skor Sigmoid", "—")
-            n2.metric("Kata Aktif", "0")
-            n3.metric("Total Bobot TF-IDF", "0.0000")
+            st.markdown(_pred_metrics_html("—", "Kata Aktif", "0", "0.0000"), unsafe_allow_html=True)
         else:
             top_prob_m = medan_res["category_scores"][0]["sigmoid_percent"]
             st.info(
                 f"**Prediksi Medan Makna**: `{medan_res['predicted_category']}` "
                 f"— **{medan_res['predicted_category_id']}** ({medan_res['predicted_category_en']})"
             )
-            n1, n2, n3 = st.columns(3)
-            n1.metric("Skor Sigmoid", f"{top_prob_m:.2f}%")
-            n2.metric("Kata Aktif", f"{medan_res['n_active_features']}")
-            n3.metric("Total Bobot TF-IDF", f"{medan_res['total_tfidf_weight']:.4f}")
+            st.markdown(
+                _pred_metrics_html(
+                    f"{top_prob_m:.2f}%",
+                    "Kata Aktif",
+                    f"{medan_res['n_active_features']}",
+                    f"{medan_res['total_tfidf_weight']:.4f}",
+                ),
+                unsafe_allow_html=True,
+            )
 
     if both_uncat:
         return
