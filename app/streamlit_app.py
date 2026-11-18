@@ -493,42 +493,49 @@ def _inject_design_system_styles() -> None:
             color: rgba(255, 255, 255, 0.78);
         }
 
-        /* Compact Inline Workflow Strip above Input */
+        /* Connected Horizontal Workflow Steps (01 -> 02 -> 03) */
         .flow-strip {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.75rem 1.4rem;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 1fr);
+            align-items: start;
+            gap: 0.65rem;
             background: var(--surface-card);
             border: 1px solid var(--border-hairline);
-            border-radius: 14px;
-            padding: 0.68rem 1.05rem;
-            margin-bottom: 0.9rem;
+            border-radius: 18px;
+            padding: 1.05rem 1.35rem;
+            margin-bottom: 1rem;
         }
-        .flow-step {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.84rem;
-            font-weight: 500;
-            color: var(--ink-muted);
+        .flow-item {
+            min-width: 0;
         }
         .flow-num {
-            display: inline-flex;
+            font-size: 1.55rem;
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            color: var(--brand-indigo);
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 0.32rem;
+        }
+        .flow-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--ink-dark);
+            line-height: 1.25;
+            margin-bottom: 0.16rem;
+        }
+        .flow-desc {
+            font-size: 0.8rem;
+            font-weight: 400;
+            line-height: 1.42;
+            color: var(--ink-muted);
+        }
+        .flow-arrow {
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 7px;
-            background: var(--ink-dark);
-            color: #FFFFFF;
-            font-size: 0.72rem;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-        .flow-step strong {
-            color: var(--ink-dark);
-            font-weight: 700;
+            padding-top: 0.48rem;
         }
 
         /* Pill Tabs (cocok dengan div[role="tab"] Streamlit 1.50) */
@@ -949,8 +956,11 @@ def _inject_design_system_styles() -> None:
             .top-nav-meta {
                 display: none;
             }
-            .hero-bento, .compare-grid, .method-grid, .dark-footer {
+            .hero-bento, .compare-grid, .method-grid, .dark-footer, .flow-strip {
                 grid-template-columns: 1fr;
+            }
+            .flow-arrow {
+                display: none;
             }
             .footer-links {
                 justify-content: flex-start;
@@ -998,7 +1008,7 @@ def _render_hero_banner(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any
                 <h1 class="hero-title">Klasifikasi Berita Arab Berbasis Medan Makna &amp; Semantik Frame</h1>
                 <p class="hero-subtitle">
                     Klasifikasi artikel berita berbahasa Arab ke dalam 11 kategori tematik dengan ekstraksi kata inti
-                    Medan Makna, frasa kontekstual Semantik Frame, koefisien SVM, serta evaluasi 5 model pembelajaran mesin.
+                    Medan Makna, frasa kontekstual Semantik Frame.
                 </p>
             </div>
             <div class="hero-widget">
@@ -1036,13 +1046,13 @@ def _render_footer() -> None:
                 <h3>Arabic News Semantic Classification</h3>
                 <p>
                     Dikembangkan oleh <strong>Maulana Ihsan Ahmad</strong> — Program Studi Magister Bahasa dan Sastra Arab,
-                    UIN Sunan Kalijaga Yogyakarta. Dirilis di bawah lisensi MIT.
+                    UIN Sunan Kalijaga Yogyakarta.
                 </p>
             </div>
             <div class="footer-links">
-                <a class="footer-btn" href="{JOURNAL_DOI_URL}" target="_blank" rel="noopener">Jurnal SiELE (2024)</a>
+                <a class="footer-btn" href="{JOURNAL_DOI_URL}" target="_blank" rel="noopener">Jurnal SiELE</a>
                 <a class="footer-btn outline" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis UIN</a>
-                <a class="footer-btn outline" href="{GITHUB_REPO_URL}" target="_blank" rel="noopener">GitHub Repo</a>
+                <a class="footer-btn outline" href="{GITHUB_REPO_URL}" target="_blank" rel="noopener">GitHub</a>
             </div>
         </div>
         """,
@@ -1056,12 +1066,33 @@ def _render_classification_tab(
     samples_df: pd.DataFrame,
     font_prop: Optional[fm.FontProperties],
 ) -> None:
+    arrow_svg = (
+        '<div class="flow-arrow" aria-hidden="true">'
+        '<svg width="34" height="12" viewBox="0 0 34 12" fill="none">'
+        '<line x1="0" y1="6" x2="31" y2="6" stroke="#93C5FD" stroke-width="1.6"/>'
+        '<path d="M26.5 1.5L32 6L26.5 10.5" stroke="#4B44F6" stroke-width="1.6" '
+        'stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+    )
     st.markdown(
-        """
+        f"""
         <div class="flow-strip">
-            <span class="flow-step"><span class="flow-num">1</span> <strong>Input Berita Arab</strong> — Tulis, tempel, atau pilih contoh 11 kategori</span>
-            <span class="flow-step"><span class="flow-num">2</span> <strong>Ekstraksi Ganda</strong> — Medan Makna &amp; Semantik Frame</span>
-            <span class="flow-step"><span class="flow-num">3</span> <strong>Skor &amp; Bobot</strong> — Sigmoid 11 kelas &amp; koefisien fitur</span>
+            <div class="flow-item">
+                <div class="flow-num">01</div>
+                <div class="flow-title">Input Berita Arab</div>
+                <div class="flow-desc">Tulis, tempel, atau pilih contoh 11 kategori berita.</div>
+            </div>
+            {arrow_svg}
+            <div class="flow-item">
+                <div class="flow-num">02</div>
+                <div class="flow-title">Ekstraksi Ganda</div>
+                <div class="flow-desc">Saring kata inti Medan Makna &amp; frasa Semantik Frame.</div>
+            </div>
+            {arrow_svg}
+            <div class="flow-item">
+                <div class="flow-num">03</div>
+                <div class="flow-title">Skor &amp; Koefisien</div>
+                <div class="flow-desc">Probabilitas Sigmoid 11 kelas &amp; bobot kontribusi fitur.</div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
