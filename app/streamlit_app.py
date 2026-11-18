@@ -465,10 +465,7 @@ def _render_classification_tab(
             scores_df = pd.DataFrame(res_obj["category_scores"])
             scores_sorted = scores_df.sort_values("sigmoid_percent", ascending=True)
             fig, ax = plt.subplots(figsize=(7.6, 5.0))
-            ylabels = [
-                f"{r['category_id']} - {reshape_arabic_for_plot(r['category'])}"
-                for _, r in scores_sorted.iterrows()
-            ]
+            ylabels = [reshape_arabic_for_plot(r["category"]) for _, r in scores_sorted.iterrows()]
             bars = ax.barh(ylabels, scores_sorted["sigmoid_percent"], color=bar_color, height=0.68)
             for bar, val in zip(bars, scores_sorted["sigmoid_percent"]):
                 ax.text(
@@ -625,27 +622,25 @@ def _render_corpus_and_lexicons_tab(
 
         col_c1, col_c2 = st.columns(2)
         with col_c1:
-            fig_cat, ax_cat = plt.subplots(figsize=(8.2, 5.4))
-            labels_cat = [
-                f"{r['Terjemahan']} ({reshape_arabic_for_plot(r['Kategori'])})"
-                for _, r in cat_df.iterrows()
-            ]
+            fig_cat, ax_cat = plt.subplots(figsize=(8.6, 5.4))
+            labels_cat = [reshape_arabic_for_plot(c) for c in cat_df["Kategori"].tolist()[::-1]]
+            trans_cat = cat_df["Terjemahan"].tolist()[::-1]
             vals_cat = cat_df["Artikel Valid"].tolist()[::-1]
-            bars_cat = ax_cat.barh(labels_cat[::-1], vals_cat, color="#2563eb", height=0.68)
+            bars_cat = ax_cat.barh(labels_cat, vals_cat, color="#2563eb", height=0.68)
             max_cat = max(vals_cat) if vals_cat else 1
-            for bar, val in zip(bars_cat, vals_cat):
+            for bar, val, trans in zip(bars_cat, vals_cat, trans_cat):
                 ax_cat.text(
                     val + max_cat * 0.015,
                     bar.get_y() + bar.get_height() / 2,
-                    f"{val:,}",
+                    f"{trans} ({val:,})",
                     va="center",
                     fontsize=8.5,
                     color="#1e293b",
                 )
-            ax_cat.set_xlim(0, max_cat * 1.18)
+            ax_cat.set_xlim(0, max_cat * 1.48)
             ax_cat.set_title("Distribusi Artikel pada 11 Kategori", fontsize=11.5, pad=10)
             ax_cat.set_xlabel("Jumlah Artikel Valid", fontsize=10)
-            ax_cat.tick_params(axis="y", labelsize=9.5)
+            ax_cat.tick_params(axis="y", labelsize=10)
             ax_cat.grid(axis="x", linestyle="--", alpha=0.3)
             if font_prop:
                 for lbl in ax_cat.get_yticklabels():
