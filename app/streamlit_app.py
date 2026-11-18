@@ -410,7 +410,7 @@ def _inject_design_system_styles() -> None:
             margin: 0;
         }
 
-        /* Pill Tabs (menargetkan semantic role tanpa menyembunyikan wrapper tab) */
+        /* Pill Tabs (menargetkan semantic [role="tab"] tanpa menyembunyikan tab itu sendiri) */
         .stTabs [role="tablist"] {
             background-color: #FFFFFF !important;
             padding: 8px 10px !important;
@@ -420,17 +420,20 @@ def _inject_design_system_styles() -> None:
             gap: 8px !important;
             margin-bottom: 1.15rem !important;
         }
-        .stTabs [role="tablist"] > div:not(:has(button[role="tab"])) {
+        .stTabs [role="tablist"] > div:not([role="tab"]):not(:has([role="tab"])) {
             display: none !important;
             height: 0 !important;
             background: transparent !important;
         }
-        .stTabs [role="tablist"] > div:has(button[role="tab"]) {
+        .stTabs [role="tablist"] > div:has([role="tab"]) {
             display: inline-flex !important;
             margin: 0 !important;
             padding: 0 !important;
         }
-        .stTabs [role="tablist"] button[role="tab"] {
+        .stTabs [role="tablist"] [role="tab"] {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             border-radius: 9999px !important;
             padding: 0.6rem 1.45rem !important;
             min-height: 42px !important;
@@ -442,10 +445,17 @@ def _inject_design_system_styles() -> None:
             border: none !important;
             box-shadow: none !important;
         }
-        .stTabs [role="tablist"] button[role="tab"][aria-selected="true"] {
+        .stTabs [role="tablist"] [role="tab"] p {
+            margin: 0 !important;
+            font-weight: 600 !important;
+        }
+        .stTabs [role="tablist"] [role="tab"][aria-selected="true"] {
             background-color: #111111 !important;
             color: #FFFFFF !important;
             border-radius: 9999px !important;
+        }
+        .stTabs [role="tablist"] [role="tab"][aria-selected="true"] p {
+            color: #FFFFFF !important;
         }
 
         /* Compact Bento Metrics inside Prediction Columns */
