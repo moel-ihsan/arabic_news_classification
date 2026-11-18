@@ -355,49 +355,54 @@ def _inject_design_system_styles() -> None:
             background: var(--surface-card);
             border: 1px solid var(--border-hairline);
             border-radius: 9999px;
-            padding: 0.55rem 0.7rem 0.55rem 1.25rem;
+            padding: 0.45rem 0.55rem 0.45rem 1.15rem;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 1rem;
+            gap: 0.75rem;
         }
         .top-nav-brand {
             display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.55rem;
             font-weight: 700;
-            font-size: 0.94rem;
+            font-size: 0.92rem;
             letter-spacing: -0.02em;
             color: var(--ink-dark);
+            white-space: nowrap;
         }
         .top-nav-dot {
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             border-radius: 9999px;
             background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
             display: inline-block;
+            flex-shrink: 0;
         }
         .top-nav-meta {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: var(--ink-muted);
+            white-space: nowrap;
         }
         .top-nav-actions {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
+            gap: 0.4rem;
+            flex-shrink: 0;
         }
         .top-nav-link {
             display: inline-block;
             text-decoration: none !important;
-            font-size: 0.8rem;
+            font-size: 0.79rem;
             font-weight: 600;
             color: var(--ink-dark) !important;
             background: var(--surface-bg);
             border: 1px solid var(--border-hairline);
-            padding: 0.4rem 0.85rem;
+            padding: 0.38rem 0.85rem;
             border-radius: 9999px;
+            white-space: nowrap;
             transition: background-color 0.15s ease;
         }
         .top-nav-link:hover {
@@ -965,7 +970,7 @@ def _render_top_navbar() -> None:
                 <span class="top-nav-dot"></span>
                 <span>Arabic News Semantics</span>
             </div>
-            <div class="top-nav-meta">11 Kategori Berita &middot; 6 Portal Timur Tengah &amp; Afrika Utara</div>
+            <div class="top-nav-meta">11 Kategori &middot; 6 Portal Berita Arab</div>
             <div class="top-nav-actions">
                 <a class="top-nav-link" href="{JOURNAL_DOI_URL}" target="_blank" rel="noopener">Jurnal SiELE</a>
                 <a class="top-nav-link" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis UIN</a>
