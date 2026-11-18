@@ -3,6 +3,7 @@
 import html
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any, Dict, List, Optional
 import unicodedata
@@ -449,8 +450,15 @@ def _render_classification_tab(
     with st.spinner("Mengekstrak fitur Medan Makna, frasa Semantik Frame, dan koefisien model..."):
         dual = analyze_article_dual_svm(active_text, bundles=bundles, stopwords=stopwords)
 
-    medan_res = dual["medan_makna"]
-    frame_res = dual["frame_semantik"]
+    medan_res = dict(dual["medan_makna"])
+    frame_res = dict(dual["frame_semantik"])
+    has_arabic = bool(re.search(r"[\u0600-\u06FF]", active_text))
+    medan_res["is_uncategorized"] = bool(
+        medan_res.get("is_uncategorized") or medan_res.get("n_active_features", 0) == 0 or (not has_arabic)
+    )
+    frame_res["is_uncategorized"] = bool(
+        frame_res.get("is_uncategorized") or frame_res.get("n_active_features", 0) == 0 or (not has_arabic)
+    )
 
     if true_label_info is not None:
         st.caption(
@@ -918,7 +926,7 @@ def _render_evaluation_tab(
         ]
     )
 
-    cm_col1, cm_col2 = st.columns([1.15, 1])
+    cm_col1, cm_col2 = st.columns([1.45, 1])
     with cm_col1:
         labels_ar = [reshape_arabic_for_plot(LABELS[i]) for i in range(1, 12)]
         fig_cm, ax_cm = plt.subplots(figsize=(9.8, 8.4))
@@ -949,16 +957,33 @@ def _render_evaluation_tab(
         plt.close(fig_cm)
 
     with cm_col2:
-        st.dataframe(
-            per_class_df,
-            width="stretch",
-            hide_index=True,
-            column_config={
-                "Precision": st.column_config.NumberColumn(format="%.4f"),
-                "Recall": st.column_config.NumberColumn(format="%.4f"),
-                "F1-Score": st.column_config.NumberColumn(format="%.4f"),
-            },
+        best_row = per_class_df.sort_values("F1-Score", ascending=False).iloc[0]
+        low_row = per_class_df.sort_values("F1-Score", ascending=True).iloc[0]
+        st.markdown("##### Ringkasan Evaluasi SVM")
+        s1, s2 = st.columns(2)
+        s1.metric("Akurasi", f"{active_svm['accuracy'] * 100:.2f}%")
+        s2.metric("Total Sampel", f"{active_svm['support']:,}")
+        s3, s4 = st.columns(2)
+        s3.metric("Precision", f"{active_svm['precision']:.4f}")
+        s4.metric("F1-Score", f"{active_svm['f1_score']:.4f}")
+        st.success(
+            f"**F1 Tertinggi**: {best_row['Kategori']} ({best_row['Arab']}) — `{best_row['F1-Score']:.4f}`"
         )
+        st.info(
+            f"**F1 Terendah**: {low_row['Kategori']} ({low_row['Arab']}) — `{low_row['F1-Score']:.4f}`"
+        )
+
+    st.markdown("##### Rincian Metrik Per-Kategori")
+    st.dataframe(
+        per_class_df,
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Precision": st.column_config.NumberColumn(format="%.4f"),
+            "Recall": st.column_config.NumberColumn(format="%.4f"),
+            "F1-Score": st.column_config.NumberColumn(format="%.4f"),
+        },
+    )
 
 
 def _render_methodology_tab() -> None:
