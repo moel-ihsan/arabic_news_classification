@@ -410,20 +410,19 @@ def _inject_design_system_styles() -> None:
             margin: 0;
         }
 
-        /* Pill Tabs */
-        .stTabs [data-baseweb="tab-list"] {
+        /* Pill Tabs (menargetkan semantic role agar cocok lintas versi Streamlit) */
+        .stTabs [role="tablist"] {
             background-color: #FFFFFF !important;
-            padding: 7px 10px !important;
+            padding: 8px 10px !important;
             border-radius: 9999px !important;
             border: 1px solid #E2E8F0 !important;
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
             gap: 8px !important;
             margin-bottom: 1.15rem !important;
         }
-        .stTabs [data-baseweb="tab-list"] button[role="tab"],
-        .stTabs [data-baseweb="tab"] {
+        .stTabs [role="tablist"] button[role="tab"] {
             border-radius: 9999px !important;
-            padding: 0.55rem 1.45rem !important;
+            padding: 0.6rem 1.45rem !important;
             min-height: 42px !important;
             height: auto !important;
             font-weight: 600 !important;
@@ -432,14 +431,12 @@ def _inject_design_system_styles() -> None:
             background-color: transparent !important;
             border: none !important;
         }
-        .stTabs [data-baseweb="tab-list"] button[role="tab"][aria-selected="true"],
-        .stTabs [aria-selected="true"] {
+        .stTabs [role="tablist"] button[role="tab"][aria-selected="true"] {
             background-color: #111111 !important;
             color: #FFFFFF !important;
             border-radius: 9999px !important;
         }
-        .stTabs [data-baseweb="tab-border"],
-        .stTabs [data-baseweb="tab-highlight"] {
+        .stTabs [role="tablist"] > div {
             display: none !important;
             height: 0 !important;
             background: transparent !important;
