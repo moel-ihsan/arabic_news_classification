@@ -42,26 +42,29 @@ JOURNAL_DOI_URL = "https://doi.org/10.24815/siele.v11i3.38090"
 THESIS_REPO_URL = "https://digilib.uin-suka.ac.id/id/eprint/75147/"
 GITHUB_REPO_URL = "https://github.com/moel-ihsan/arabic_news_classification"
 
-INDIGO_PRIMARY = "#4B44F6"
-AZURE_ACCENT = "#4E8BFF"
-SLATE_MUTED = "#64748B"
-INK_DARK = "#0D0E12"
+VIOLET_PRIMARY = "#7B2CFF"
+ORANGE_SECONDARY = "#F97316"
+LIME_ACCENT = "#A6F40D"
+INK_DARK = "#151618"
+CHART_SURFACE = "#FAF9F5"
 
 
 def _apply_chart_theme(ax: Any, grid_axis: str = "x") -> None:
-    """Menyeragamkan gaya sumbu dan grid grafik agar selaras dengan palet Bento."""
+    """Menyeragamkan permukaan, sumbu, dan grid grafik dengan palet Warm Alabaster."""
+    ax.figure.patch.set_facecolor(CHART_SURFACE)
+    ax.set_facecolor(CHART_SURFACE)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_color("#E6E8F0")
-    ax.spines["bottom"].set_color("#E6E8F0")
+    ax.spines["left"].set_color("#DDD8CA")
+    ax.spines["bottom"].set_color("#DDD8CA")
     ax.spines["left"].set_linewidth(0.9)
     ax.spines["bottom"].set_linewidth(0.9)
-    ax.tick_params(colors="#475569")
+    ax.tick_params(colors="#575860")
     ax.title.set_color(INK_DARK)
     ax.title.set_fontweight("bold")
-    ax.xaxis.label.set_color("#475569")
-    ax.yaxis.label.set_color("#475569")
-    ax.grid(axis=grid_axis, linestyle="--", linewidth=0.7, color="#CBD5E1", alpha=0.55)
+    ax.xaxis.label.set_color("#575860")
+    ax.yaxis.label.set_color("#575860")
+    ax.grid(axis=grid_axis, linestyle="--", linewidth=0.7, color="#D6D1C4", alpha=0.75)
     ax.set_axisbelow(True)
 
 MODELS_EVAL_CONFIG = [
@@ -291,13 +294,16 @@ def _inject_design_system_styles() -> None:
         :root {
             --font: 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
             --gdg-font-family: 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-            --ink-dark: #0D0E12;
-            --ink-muted: #525866;
-            --surface-bg: #F6F7FB;
-            --surface-card: #FFFFFF;
-            --border-hairline: #E6E8F0;
-            --brand-indigo: #4B44F6;
-            --brand-azure: #4E8BFF;
+            --ink-dark: #151618;
+            --ink-muted: #575860;
+            --surface-bg: #F4F1EA;
+            --surface-card: #FAF9F5;
+            --surface-warm: #EFECE3;
+            --border-hairline: #E3DFD3;
+            --accent-violet: #7B2CFF;
+            --accent-lilac: #A688FF;
+            --accent-orange: #FF7A1A;
+            --accent-lime: #A6F40D;
         }
 
         /* Sembunyikan Header, Toolbar, dan Dekorasi Bawaan Streamlit */
@@ -350,7 +356,7 @@ def _inject_design_system_styles() -> None:
             padding-bottom: 2.5rem;
         }
 
-        /* Minimalist Top Navbar (pengganti header bawaan & sidebar) */
+        /* Minimalist Top Navbar (Warm Ivory Pill + Acid Lime Marker + Charcoal CTA) */
         .top-nav {
             background: var(--surface-card);
             border: 1px solid var(--border-hairline);
@@ -373,10 +379,11 @@ def _inject_design_system_styles() -> None:
             white-space: nowrap;
         }
         .top-nav-dot {
-            width: 9px;
-            height: 9px;
+            width: 10px;
+            height: 10px;
             border-radius: 9999px;
-            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
+            background: var(--accent-lime);
+            border: 1.5px solid var(--ink-dark);
             display: inline-block;
             flex-shrink: 0;
         }
@@ -406,7 +413,7 @@ def _inject_design_system_styles() -> None:
             transition: background-color 0.15s ease;
         }
         .top-nav-link:hover {
-            background: #ECEEF6;
+            background: var(--surface-warm);
         }
         .top-nav-link.primary {
             background: var(--ink-dark);
@@ -414,86 +421,97 @@ def _inject_design_system_styles() -> None:
             border-color: var(--ink-dark);
         }
         .top-nav-link.primary:hover {
-            background: #27272A;
+            background: var(--accent-violet);
+            border-color: var(--accent-violet);
         }
 
-        /* Top Royal Indigo -> Azure Hero Card */
+        /* Deep Charcoal Architectural Hero Card + 4 Accent Bento Tiles */
         .hero-bento {
-            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
+            background: var(--ink-dark);
             border-radius: 22px;
-            padding: 1.75rem 2rem;
-            color: #FFFFFF;
+            padding: 1.8rem 2.05rem;
+            color: #FAF9F5;
             margin-bottom: 1.15rem;
             display: grid;
-            grid-template-columns: 1.32fr 1fr;
-            gap: 1.5rem;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 1.65rem;
             align-items: center;
         }
         .hero-title {
-            font-size: 1.95rem;
+            font-size: 1.98rem;
             font-weight: 700;
             line-height: 1.14;
             letter-spacing: -0.032em;
-            margin: 0 0 0.65rem 0;
+            margin: 0 0 0.7rem 0;
             color: #FFFFFF !important;
         }
         .hero-subtitle {
             font-size: 0.98rem;
             font-weight: 400;
             line-height: 1.58;
-            color: rgba(255, 255, 255, 0.90);
+            color: rgba(250, 249, 245, 0.78);
             margin: 0;
             max-width: 54ch;
         }
         .hero-widget {
-            background: #FFFFFF;
+            background: var(--surface-card);
             border-radius: 18px;
-            padding: 1.1rem;
+            padding: 1rem;
             color: var(--ink-dark);
-            box-shadow: 0 18px 42px rgba(13, 14, 18, 0.18);
         }
         .hero-widget-label {
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             color: var(--ink-muted);
-            margin-bottom: 0.72rem;
+            margin-bottom: 0.68rem;
         }
         .hero-tiles {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.6rem;
+            gap: 0.55rem;
         }
         .hero-tile {
-            background: var(--surface-bg);
-            border: 1px solid var(--border-hairline);
-            border-radius: 13px;
-            padding: 0.78rem 0.88rem;
+            background: var(--surface-warm);
+            border-radius: 14px;
+            padding: 0.82rem 0.9rem;
+            color: var(--ink-dark);
         }
-        .hero-tile.active {
-            background: var(--ink-dark);
-            border-color: var(--ink-dark);
+        .hero-tile.lime {
+            background: var(--accent-lime);
+            color: var(--ink-dark);
+        }
+        .hero-tile.violet {
+            background: var(--accent-violet);
             color: #FFFFFF;
         }
+        .hero-tile.orange {
+            background: var(--accent-orange);
+            color: var(--ink-dark);
+        }
         .hero-tile-val {
-            font-size: 1.3rem;
+            font-size: 1.32rem;
             font-weight: 700;
-            line-height: 1.15;
+            line-height: 1.12;
             letter-spacing: -0.025em;
             font-variant-numeric: tabular-nums;
         }
         .hero-tile-cap {
             font-size: 0.75rem;
+            margin-top: 0.24rem;
+            font-weight: 600;
             color: var(--ink-muted);
-            margin-top: 0.22rem;
-            font-weight: 500;
         }
-        .hero-tile.active .hero-tile-cap {
-            color: rgba(255, 255, 255, 0.78);
+        .hero-tile.lime .hero-tile-cap,
+        .hero-tile.orange .hero-tile-cap {
+            color: rgba(21, 22, 24, 0.82);
+        }
+        .hero-tile.violet .hero-tile-cap {
+            color: rgba(255, 255, 255, 0.88);
         }
 
-        /* Connected Horizontal Workflow Steps (01 -> 02 -> 03) */
+        /* Connected Horizontal Workflow Steps (01 -> 02 -> 03 dengan Triad Aksen) */
         .flow-strip {
             display: grid;
             grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 1fr);
@@ -509,16 +527,30 @@ def _inject_design_system_styles() -> None:
             min-width: 0;
         }
         .flow-num {
-            font-size: 1.55rem;
+            display: inline-block;
+            font-size: 0.92rem;
             font-weight: 700;
-            line-height: 1.05;
-            letter-spacing: -0.03em;
-            color: var(--brand-indigo);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            padding: 0.26rem 0.62rem;
+            border-radius: 9px;
             font-variant-numeric: tabular-nums;
-            margin-bottom: 0.32rem;
+            margin-bottom: 0.42rem;
+        }
+        .flow-num.violet {
+            background: var(--accent-violet);
+            color: #FFFFFF;
+        }
+        .flow-num.orange {
+            background: var(--accent-orange);
+            color: var(--ink-dark);
+        }
+        .flow-num.lime {
+            background: var(--accent-lime);
+            color: var(--ink-dark);
         }
         .flow-title {
-            font-size: 0.92rem;
+            font-size: 0.93rem;
             font-weight: 700;
             letter-spacing: -0.02em;
             color: var(--ink-dark);
@@ -535,7 +567,7 @@ def _inject_design_system_styles() -> None:
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 0.48rem;
+            padding-top: 0.55rem;
         }
 
         /* Pill Tabs (cocok dengan div[role="tab"] Streamlit 1.50) */
@@ -589,7 +621,7 @@ def _inject_design_system_styles() -> None:
             color: #FFFFFF !important;
         }
 
-        /* Unified Bento Prediction Cards (menggantikan alert bawaan + chip terpisah) */
+        /* Unified Bento Prediction Cards */
         .pred-card {
             background: var(--surface-card);
             border: 1px solid var(--border-hairline);
@@ -599,16 +631,14 @@ def _inject_design_system_styles() -> None:
             margin-bottom: 1.1rem;
         }
         .pred-card.frame {
-            background: linear-gradient(180deg, #F8F8FF 0%, #FFFFFF 48%);
-            border-color: #DCD9FE;
+            border-color: #D7C6FF;
         }
         .pred-card.medan {
-            background: linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 48%);
-            border-color: #D7E6FE;
+            border-color: #FFD0AD;
         }
         .pred-card.uncat {
-            background: #FFFBEB;
-            border-color: #FDE68A;
+            background: #FEF9E7;
+            border-color: #F4D03F;
         }
         .pred-card-head {
             display: flex;
@@ -618,24 +648,24 @@ def _inject_design_system_styles() -> None:
             margin-bottom: 0.55rem;
         }
         .pred-scheme-tag {
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding: 0.22rem 0.65rem;
+            padding: 0.24rem 0.68rem;
             border-radius: 9999px;
         }
         .pred-card.frame .pred-scheme-tag {
-            background: #ECEBFF;
-            color: #3730A3;
+            background: var(--accent-violet);
+            color: #FFFFFF;
         }
         .pred-card.medan .pred-scheme-tag {
-            background: #E7F0FF;
-            color: #1D4ED8;
+            background: var(--accent-orange);
+            color: var(--ink-dark);
         }
         .pred-card.uncat .pred-scheme-tag {
-            background: #FEF3C7;
-            color: #92400E;
+            background: var(--accent-lime);
+            color: var(--ink-dark);
         }
         .pred-cat-ar {
             font-family: var(--font-arabic) !important;
@@ -704,8 +734,8 @@ def _inject_design_system_styles() -> None:
             color: #FFFFFF !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background-color: #4B44F6 !important;
-            border-color: #4B44F6 !important;
+            background-color: var(--accent-violet) !important;
+            border-color: var(--accent-violet) !important;
             transform: translateY(-1px);
         }
         .stButton > button[kind="secondary"] {
@@ -714,7 +744,7 @@ def _inject_design_system_styles() -> None:
             color: var(--ink-dark) !important;
         }
         .stButton > button[kind="secondary"]:hover {
-            background-color: var(--surface-bg) !important;
+            background-color: var(--surface-warm) !important;
         }
 
         /* Flat Hairline Metric Cards */
@@ -746,7 +776,7 @@ def _inject_design_system_styles() -> None:
             color: var(--ink-dark);
         }
         .compare-card-highlight {
-            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
+            background: var(--accent-violet);
             border-radius: 18px;
             padding: 1.35rem 1.5rem;
             color: #FFFFFF;
@@ -757,17 +787,17 @@ def _inject_design_system_styles() -> None:
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            padding: 0.24rem 0.65rem;
+            padding: 0.24rem 0.68rem;
             border-radius: 9999px;
             margin-bottom: 0.55rem;
         }
         .compare-card-muted .compare-tag {
-            background: var(--surface-bg);
-            color: var(--ink-muted);
+            background: var(--accent-orange);
+            color: var(--ink-dark);
         }
         .compare-card-highlight .compare-tag {
-            background: rgba(255, 255, 255, 0.2);
-            color: #FFFFFF;
+            background: var(--accent-lime);
+            color: var(--ink-dark);
         }
         .compare-card-highlight .compare-title,
         [data-testid="stMarkdownContainer"] .compare-card-highlight h4 {
@@ -792,15 +822,18 @@ def _inject_design_system_styles() -> None:
         .compare-list li {
             padding: 0.44rem 0;
             font-size: 0.9rem;
-            border-bottom: 1px dashed rgba(148, 163, 184, 0.28);
+            border-bottom: 1px dashed rgba(21, 22, 24, 0.14);
+        }
+        .compare-card-highlight .compare-list li {
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.24);
         }
         .compare-list li:last-child {
             border-bottom: none;
         }
 
-        /* 2-Col Methodology Cards */
+        /* 2-Col Methodology Cards (Dark Charcoal Showcase Band + Warm Ivory Cards) */
         .method-band {
-            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
+            background: var(--ink-dark);
             border-radius: 22px;
             padding: 1.75rem;
             color: #FFFFFF;
@@ -813,7 +846,7 @@ def _inject_design_system_styles() -> None:
             margin-top: 1.1rem;
         }
         .method-card {
-            background: #FFFFFF;
+            background: var(--surface-card);
             border-radius: 16px;
             padding: 1.2rem 1.3rem;
             color: var(--ink-dark);
@@ -827,9 +860,21 @@ def _inject_design_system_styles() -> None:
             color: #FFFFFF;
             font-size: 0.72rem;
             font-weight: 700;
-            padding: 0.22rem 0.55rem;
+            padding: 0.24rem 0.58rem;
             border-radius: 8px;
             font-variant-numeric: tabular-nums;
+        }
+        .method-badge.violet {
+            background: var(--accent-violet);
+            color: #FFFFFF;
+        }
+        .method-badge.orange {
+            background: var(--accent-orange);
+            color: var(--ink-dark);
+        }
+        .method-badge.lime {
+            background: var(--accent-lime);
+            color: var(--ink-dark);
         }
         .method-card h4 {
             margin: 0 2.8rem 0.45rem 0;
@@ -870,7 +915,7 @@ def _inject_design_system_styles() -> None:
             unicode-bidi: plaintext;
             font-size: 1.04rem;
             line-height: 1.85;
-            background-color: var(--surface-bg);
+            background-color: var(--surface-warm);
             border: 1px solid var(--border-hairline);
             border-radius: 12px;
             padding: 0.85rem 1.05rem;
@@ -900,10 +945,10 @@ def _inject_design_system_styles() -> None:
             border-radius: 14px !important;
         }
 
-        /* Obsidian Showcase Footer */
+        /* Deep Charcoal Footer + Acid Lime Primary Action */
         .dark-footer {
-            background: #0C0D10;
-            color: #F8FAFC;
+            background: var(--ink-dark);
+            color: #FAF9F5;
             border-radius: 22px;
             padding: 1.75rem 2rem;
             margin-top: 2rem;
@@ -922,7 +967,7 @@ def _inject_design_system_styles() -> None:
         .dark-footer p {
             margin: 0;
             font-size: 0.88rem;
-            color: #94A3B8;
+            color: rgba(250, 249, 245, 0.72);
             line-height: 1.55;
         }
         .footer-links {
@@ -933,8 +978,8 @@ def _inject_design_system_styles() -> None:
         }
         .footer-btn {
             display: inline-block;
-            background: #FFFFFF;
-            color: #0D0E12 !important;
+            background: var(--accent-lime);
+            color: var(--ink-dark) !important;
             text-decoration: none !important;
             font-weight: 700;
             font-size: 0.82rem;
@@ -942,9 +987,9 @@ def _inject_design_system_styles() -> None:
             border-radius: 9999px;
         }
         .footer-btn.outline {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(250, 249, 245, 0.10);
             color: #FFFFFF !important;
-            border: 1px solid rgba(255, 255, 255, 0.20);
+            border: 1px solid rgba(250, 249, 245, 0.22);
         }
 
         @media (max-width: 720px) {
@@ -1014,15 +1059,15 @@ def _render_hero_banner(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any
             <div class="hero-widget">
                 <div class="hero-widget-label">Ringkasan Performa Sistem</div>
                 <div class="hero-tiles">
-                    <div class="hero-tile active">
+                    <div class="hero-tile lime">
                         <div class="hero-tile-val">{frame_txt}</div>
                         <div class="hero-tile-cap">Akurasi Semantik Frame</div>
                     </div>
-                    <div class="hero-tile">
+                    <div class="hero-tile violet">
                         <div class="hero-tile-val">{medan_txt}</div>
                         <div class="hero-tile-cap">Akurasi Medan Makna</div>
                     </div>
-                    <div class="hero-tile">
+                    <div class="hero-tile orange">
                         <div class="hero-tile-val">{valid_txt}</div>
                         <div class="hero-tile-cap">Artikel Valid Korpus</div>
                     </div>
@@ -1069,27 +1114,27 @@ def _render_classification_tab(
     arrow_svg = (
         '<div class="flow-arrow" aria-hidden="true">'
         '<svg width="34" height="12" viewBox="0 0 34 12" fill="none">'
-        '<line x1="0" y1="6" x2="31" y2="6" stroke="#93C5FD" stroke-width="1.6"/>'
-        '<path d="M26.5 1.5L32 6L26.5 10.5" stroke="#4B44F6" stroke-width="1.6" '
+        '<line x1="0" y1="6" x2="31" y2="6" stroke="#C7C1B2" stroke-width="1.6"/>'
+        '<path d="M26.5 1.5L32 6L26.5 10.5" stroke="#151618" stroke-width="1.6" '
         'stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
     )
     st.markdown(
         f"""
         <div class="flow-strip">
             <div class="flow-item">
-                <div class="flow-num">01</div>
+                <div class="flow-num violet">01</div>
                 <div class="flow-title">Input Berita Arab</div>
                 <div class="flow-desc">Tulis, tempel, atau pilih contoh 11 kategori berita.</div>
             </div>
             {arrow_svg}
             <div class="flow-item">
-                <div class="flow-num">02</div>
+                <div class="flow-num orange">02</div>
                 <div class="flow-title">Ekstraksi Ganda</div>
                 <div class="flow-desc">Saring kata inti Medan Makna &amp; frasa Semantik Frame.</div>
             </div>
             {arrow_svg}
             <div class="flow-item">
-                <div class="flow-num">03</div>
+                <div class="flow-num lime">03</div>
                 <div class="flow-title">Skor &amp; Koefisien</div>
                 <div class="flow-desc">Probabilitas Sigmoid 11 kelas &amp; bobot kontribusi fitur.</div>
             </div>
@@ -1283,8 +1328,8 @@ def _render_classification_tab(
     st.markdown("#### Distribusi Skor Probabilitas Sigmoid Lintas 11 Kategori")
     score_col1, score_col2 = st.columns(2)
     for col_box, title_txt, res_obj, bar_color in [
-        (score_col1, "Semantik Frame", frame_res, INDIGO_PRIMARY),
-        (score_col2, "Medan Makna", medan_res, AZURE_ACCENT),
+        (score_col1, "Semantik Frame", frame_res, VIOLET_PRIMARY),
+        (score_col2, "Medan Makna", medan_res, ORANGE_SECONDARY),
     ]:
         with col_box:
             if res_obj.get("is_uncategorized"):
@@ -1401,7 +1446,7 @@ def _render_classification_tab(
                 ax_f.barh(
                     [reshape_arabic_for_plot(t) for t in frame_top["Frasa Semantik Frame"]],
                     frame_top["Bobot TF-IDF"],
-                    color=INDIGO_PRIMARY,
+                    color=VIOLET_PRIMARY,
                     height=0.66,
                 )
                 max_w = float(frame_top["Bobot TF-IDF"].max()) if len(frame_top) else 1.0
@@ -1460,7 +1505,7 @@ def _render_corpus_and_lexicons_tab(
             labels_cat = [reshape_arabic_for_plot(c) for c in cat_df["Kategori"].tolist()[::-1]]
             trans_cat = cat_df["Terjemahan"].tolist()[::-1]
             vals_cat = cat_df["Artikel Valid"].tolist()[::-1]
-            bars_cat = ax_cat.barh(labels_cat, vals_cat, color=INDIGO_PRIMARY, height=0.66)
+            bars_cat = ax_cat.barh(labels_cat, vals_cat, color=VIOLET_PRIMARY, height=0.66)
             max_cat = max(vals_cat) if vals_cat else 1
             for bar, val, trans in zip(bars_cat, vals_cat, trans_cat):
                 ax_cat.text(
@@ -1485,8 +1530,10 @@ def _render_corpus_and_lexicons_tab(
 
         with col_c2:
             fig_src, ax_src = plt.subplots(figsize=(8.2, 5.4))
+            fig_src.patch.set_facecolor(CHART_SURFACE)
+            ax_src.set_facecolor(CHART_SURFACE)
             total_src = float(src_df["Jumlah Artikel"].sum()) or 1.0
-            palette = ["#4B44F6", "#4E8BFF", "#818CF8", "#0D0E12", "#64748B", "#93C5FD"]
+            palette = ["#7B2CFF", "#FF7A1A", "#A6F40D", "#151618", "#A688FF", "#FDBA74"]
             wedges, _, _ = ax_src.pie(
                 src_df["Jumlah Artikel"],
                 labels=None,
@@ -1619,16 +1666,16 @@ def _render_evaluation_tab(
     fig, axes = plt.subplots(1, 3, figsize=(18, 5.4))
 
     min_acc = float(min(perf_df["Akurasi Frame"].min(), perf_df["Akurasi Medan"].min()) * 100)
-    b1 = axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Semantik Frame", color=INDIGO_PRIMARY)
-    b2 = axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color=AZURE_ACCENT)
+    b1 = axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Semantik Frame", color=VIOLET_PRIMARY)
+    b2 = axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color=ORANGE_SECONDARY)
     axes[0].set_ylim(max(0.0, min_acc - 5.0), 96.0)
     axes[0].set_xticks(x)
     axes[0].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
     axes[0].set_title("Akurasi (%)", fontsize=11, pad=10)
     _apply_chart_theme(axes[0], grid_axis="y")
 
-    axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, color=INDIGO_PRIMARY)
-    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, color=AZURE_ACCENT)
+    axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, color=VIOLET_PRIMARY)
+    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, color=ORANGE_SECONDARY)
     max_t = float(max(eff_df["Waktu Frame (s)"].max(), eff_df["Waktu Medan (s)"].max()))
     axes[1].set_ylim(0, max_t * 1.15 if max_t else 1.0)
     axes[1].set_xticks(x)
@@ -1636,8 +1683,8 @@ def _render_evaluation_tab(
     axes[1].set_title("Waktu Evaluasi (detik)", fontsize=11, pad=10)
     _apply_chart_theme(axes[1], grid_axis="y")
 
-    axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, color=INDIGO_PRIMARY)
-    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, color=AZURE_ACCENT)
+    axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, color=VIOLET_PRIMARY)
+    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, color=ORANGE_SECONDARY)
     max_r = float(max(eff_df["RAM Frame (MB)"].max(), eff_df["RAM Medan (MB)"].max()))
     axes[2].set_ylim(0, max_r * 1.15 if max_r else 1.0)
     axes[2].set_xticks(x)
@@ -1696,7 +1743,8 @@ def _render_evaluation_tab(
     with cm_col1:
         labels_ar = [reshape_arabic_for_plot(LABELS[i]) for i in range(1, 12)]
         fig_cm, ax_cm = plt.subplots(figsize=(9.8, 8.4))
-        cm_cmap = sns.light_palette(INDIGO_PRIMARY, as_cmap=True)
+        fig_cm.patch.set_facecolor(CHART_SURFACE)
+        cm_cmap = sns.light_palette(VIOLET_PRIMARY, as_cmap=True)
         sns.heatmap(
             active_svm["confusion_matrix"],
             annot=True,
@@ -1782,17 +1830,17 @@ def _render_methodology_tab() -> None:
             </p>
             <div class="method-grid">
                 <div class="method-card">
-                    <span class="method-badge">01</span>
+                    <span class="method-badge violet">01</span>
                     <h4>Pengumpulan Data (Web Scraping)</h4>
                     <p>Akuisisi otomatis dari 6 portal berita daring Arab (<code>alsumaria.tv</code>, <code>al-sharq.com</code>, <code>assahraa.ma</code>, <code>akhbarelsyaha.com</code>, <code>sarayanews.com</code>, <code>addustour.com</code>) pada 11 kategori tematik.</p>
                 </div>
                 <div class="method-card">
-                    <span class="method-badge">02</span>
+                    <span class="method-badge orange">02</span>
                     <h4>Pra-pemrosesan &amp; Percabangan</h4>
                     <p>Pembersihan angka, tanda baca Arab &amp; ASCII, konversi huruf kecil, lalu bercabang menjadi jalur <strong>Medan Makna</strong> (hapus stopwords, 80/15/5) dan <strong>Semantik Frame</strong> (pertahankan preposisi Arab, 85/10/5).</p>
                 </div>
                 <div class="method-card">
-                    <span class="method-badge">03</span>
+                    <span class="method-badge lime">03</span>
                     <h4>Statistik Korpus &amp; Leksikon</h4>
                     <p>Menghitung total token sebelum dan sesudah penghapusan kata henti, kosakata unik Arab vs Non-Arab, serta menyusun Top-1000 kata inti dan frasa TF-IDF per kategori.</p>
                 </div>
