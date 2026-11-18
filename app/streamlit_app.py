@@ -41,7 +41,7 @@ JOURNAL_DOI_URL = "https://doi.org/10.24815/siele.v11i3.38090"
 THESIS_REPO_URL = "https://digilib.uin-suka.ac.id/id/eprint/75147/"
 
 MODELS_EVAL_CONFIG = [
-    ("SVC", "SVM (LinearSVC C=10)", "svm.txt", "SVM"),
+    ("SVC", "SVM", "svm.txt", "SVM"),
     ("LogisticRegression", "Logistic Regression", "logistic.txt", "LogReg"),
     ("MultinomialNB", "Naïve Bayes", "naive.txt", "Naïve Bayes"),
     ("RandomForest", "Random Forest", "forest.txt", "Random Forest"),
@@ -123,47 +123,53 @@ def load_category_lexicon_snapshot(
     lexicons_dir: Optional[Path] = None,
     stats_dir: Optional[Path] = None,
 ) -> Dict[str, pd.DataFrame]:
-    """Memuat kamus TF-IDF Semantik Frame, Unigram, Bigram, dan Trigram untuk satu kategori Arab."""
+    """Memuat kamus Semantik Frame dan daftar kata/frasa frekuensi tertinggi untuk satu kategori Arab."""
     norm_cat = unicodedata.normalize("NFC", category_name)
     l_dir = Path(lexicons_dir) if lexicons_dir else LEXICONS_DIR
     s_dir = Path(stats_dir) if stats_dir else STATS_DIR
 
     try:
-        frame_df = pd.read_csv(
-            find_file_unicode_safe(l_dir / "tfidf_top1000", f"ngram_tfidf_weights_{norm_cat}", ".csv")
-        ).head(top_k)
+        frame_df = (
+            pd.read_csv(find_file_unicode_safe(l_dir / "tfidf_top1000", f"ngram_tfidf_weights_{norm_cat}", ".csv"))
+            .head(top_k)
+            .rename(columns={"N-gram": "Frasa Semantik Frame", "TF-IDF Weight": "Bobot TF-IDF"})
+        )
     except FileNotFoundError:
         frame_df = pd.DataFrame()
 
-    uni_rows = []
+    word_rows = []
     try:
-        uni_path = find_file_unicode_safe(s_dir / "nonstop_words", f"nonstop_words_{norm_cat}", ".txt")
-        for line in uni_path.read_text(encoding="utf-8").splitlines()[1 : top_k + 1]:
+        words_path = find_file_unicode_safe(s_dir / "nonstop_words", f"nonstop_words_{norm_cat}", ".txt")
+        for line in words_path.read_text(encoding="utf-8").splitlines()[1 : top_k + 1]:
             if ":" in line:
                 word, freq = line.split(":", 1)
-                uni_rows.append({"Kata (Unigram)": word.strip(), "Frekuensi": int(freq.strip())})
+                word_rows.append({"Kata": word.strip(), "Frekuensi": int(freq.strip())})
     except FileNotFoundError:
         pass
 
     try:
-        bigram_df = pd.read_csv(
-            find_file_unicode_safe(l_dir / "bigram_top1000", f"bigram_{norm_cat}", ".csv")
-        ).head(top_k)
+        phrase2_df = (
+            pd.read_csv(find_file_unicode_safe(l_dir / "bigram_top1000", f"bigram_{norm_cat}", ".csv"))
+            .head(top_k)
+            .rename(columns={"Bigram N-gram": "Frasa 2 Kata", "Frequency": "Frekuensi"})
+        )
     except FileNotFoundError:
-        bigram_df = pd.DataFrame()
+        phrase2_df = pd.DataFrame()
 
     try:
-        trigram_df = pd.read_csv(
-            find_file_unicode_safe(l_dir / "trigram_top1000", f"trigram_{norm_cat}", ".csv")
-        ).head(top_k)
+        phrase3_df = (
+            pd.read_csv(find_file_unicode_safe(l_dir / "trigram_top1000", f"trigram_{norm_cat}", ".csv"))
+            .head(top_k)
+            .rename(columns={"Trigram N-gram": "Frasa 3 Kata", "Frequency": "Frekuensi"})
+        )
     except FileNotFoundError:
-        trigram_df = pd.DataFrame()
+        phrase3_df = pd.DataFrame()
 
     return {
         "frame_tfidf": frame_df,
-        "unigram": pd.DataFrame(uni_rows),
-        "bigram": bigram_df,
-        "trigram": trigram_df,
+        "core_words": pd.DataFrame(word_rows),
+        "phrase_2": phrase2_df,
+        "phrase_3": phrase3_df,
     }
 
 
@@ -204,7 +210,7 @@ def highlight_arabic_terms_html(
     positive_terms: List[str],
     negative_terms: List[str],
 ) -> str:
-    """Merender HTML RTL dengan sorotan hijau untuk kata koefisien SVM (+) dan merah untuk koefisien (-)."""
+    """Merender HTML RTL dengan sorotan hijau untuk kata berkoefisien positif (+) dan merah untuk negatif (-)."""
     pos_set = set(positive_terms)
     neg_set = set(negative_terms)
     tokens = str(text).split()
@@ -213,15 +219,15 @@ def highlight_arabic_terms_html(
         cleaned_tok = preprocess_text(raw_tok, stopwords=None)
         safe_tok = html.escape(raw_tok)
         if cleaned_tok in pos_set:
-            rendered.append(f'<span class="ar-pos" title="Koefisien SVM (+)">{safe_tok}</span>')
+            rendered.append(f'<span class="ar-pos" title="Koefisien Positif (+)">{safe_tok}</span>')
         elif cleaned_tok in neg_set:
-            rendered.append(f'<span class="ar-neg" title="Koefisien SVM (-)">{safe_tok}</span>')
+            rendered.append(f'<span class="ar-neg" title="Koefisien Negatif (-)">{safe_tok}</span>')
         else:
             rendered.append(safe_tok)
     return " ".join(rendered)
 
 
-@st.cache_resource(show_spinner="Memuat model SVM Medan Makna & Semantik Frame...")
+@st.cache_resource(show_spinner="Memuat model Medan Makna & Semantik Frame...")
 def get_cached_bundles() -> Dict[str, Dict[str, Any]]:
     return load_compact_svm_bundles()
 
@@ -317,13 +323,12 @@ def _render_sidebar(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any]) -
         st.markdown(
             """
             Sistem klasifikasi artikel berita berbahasa Arab berbasis **Medan Makna (*Semantic Field*)**
-            dan **Semantik *Frame* (*Frame Semantics*)** menggunakan model terbaik
-            **Linear Support Vector Machine (`LinearSVC C=10`)**.
+            dan **Semantik *Frame* (*Frame Semantics*)**.
             """
         )
         st.metric("Total Artikel Valid Korpus", f"{total_valid:,}" if total_valid else "Belum dihitung (NB 01/03)")
-        st.metric("Akurasi SVM Semantik Frame", f"{svm_f['accuracy'] * 100:.2f}%" if svm_f else "Belum dilatih (NB 04)")
-        st.metric("Akurasi SVM Medan Makna", f"{svm_m['accuracy'] * 100:.2f}%" if svm_m else "Belum dilatih (NB 04)")
+        st.metric("Akurasi Semantik Frame", f"{svm_f['accuracy'] * 100:.2f}%" if svm_f else "Belum dilatih (NB 04)")
+        st.metric("Akurasi Medan Makna", f"{svm_m['accuracy'] * 100:.2f}%" if svm_m else "Belum dilatih (NB 04)")
 
         st.divider()
         st.subheader("Publikasi Ilmiah")
@@ -346,7 +351,7 @@ def _render_classification_tab(
 
     if "medan_makna" not in bundles or "frame_semantik" not in bundles:
         st.warning(
-            "Model SVM terlatih belum tersedia di folder `models/`. "
+            "Model terlatih belum tersedia di folder `models/`. "
             "Jalankan `notebooks/04_model_training_and_evaluation.ipynb` terlebih dahulu untuk melatih dan menyimpan "
             "`svm_medan_makna.joblib` dan `svm_frame_semantik.joblib`."
         )
@@ -390,7 +395,7 @@ def _render_classification_tab(
         st.info("Masukkan teks berita berbahasa Arab di atas untuk melihat prediksi kategori dan fitur semantik.")
         return
 
-    with st.spinner("Mengekstrak fitur Medan Makna, frasa Semantik Frame, dan koefisien SVM..."):
+    with st.spinner("Mengekstrak fitur Medan Makna, frasa Semantik Frame, dan koefisien model..."):
         dual = analyze_article_dual_svm(input_text, bundles=bundles, stopwords=stopwords)
 
     medan_res = dual["medan_makna"]
@@ -424,10 +429,10 @@ def _render_classification_tab(
         n2.metric("Kata Aktif", f"{medan_res['n_active_features']}")
         n3.metric("Total Bobot TF-IDF", f"{medan_res['total_tfidf_weight']:.4f}")
 
-    st.markdown("#### Tampilan Teks Berita Arab (RTL) & Sorotan Koefisien SVM Medan Makna")
+    st.markdown("#### Tampilan Teks Berita Arab (RTL) & Sorotan Kata Medan Makna")
     st.caption(
-        "Hijau = kata medan makna berkoefisien SVM positif (+) untuk kategori prediksi; "
-        "Merah = berkoefisien SVM negatif (-)."
+        "Hijau = kata medan makna berkoefisien positif (+) untuk kategori prediksi; "
+        "Merah = berkoefisien negatif (-)."
     )
     pos_terms = [d["term"] for d in medan_res["positive_coefs"]]
     neg_terms = [d["term"] for d in medan_res["negative_coefs"]]
@@ -453,38 +458,49 @@ def _render_classification_tab(
     st.markdown("#### Distribusi Skor Probabilitas Sigmoid Lintas 11 Kategori")
     score_col1, score_col2 = st.columns(2)
     for col_box, title_txt, res_obj, bar_color in [
-        (score_col1, "Semantik Frame (Bigram & Trigram)", frame_res, "#0f766e"),
-        (score_col2, "Medan Makna (Unigram)", medan_res, "#1d4ed8"),
+        (score_col1, "Semantik Frame", frame_res, "#0f766e"),
+        (score_col2, "Medan Makna", medan_res, "#1d4ed8"),
     ]:
         with col_box:
             scores_df = pd.DataFrame(res_obj["category_scores"])
             scores_sorted = scores_df.sort_values("sigmoid_percent", ascending=True)
-            fig, ax = plt.subplots(figsize=(7, 4.2))
+            fig, ax = plt.subplots(figsize=(7.6, 5.0))
             ylabels = [
                 f"{r['category_id']} - {reshape_arabic_for_plot(r['category'])}"
                 for _, r in scores_sorted.iterrows()
             ]
-            ax.barh(ylabels, scores_sorted["sigmoid_percent"], color=bar_color)
-            ax.set_xlim(0, 108)
-            ax.set_xlabel("Skor Sigmoid (%)")
-            ax.set_title(title_txt)
+            bars = ax.barh(ylabels, scores_sorted["sigmoid_percent"], color=bar_color, height=0.68)
+            for bar, val in zip(bars, scores_sorted["sigmoid_percent"]):
+                ax.text(
+                    min(float(val) + 1.5, 102.0),
+                    bar.get_y() + bar.get_height() / 2,
+                    f"{val:.1f}%",
+                    va="center",
+                    fontsize=8.5,
+                    color="#1e293b",
+                )
+            ax.set_xlim(0, 118)
+            ax.set_xlabel("Skor Sigmoid (%)", fontsize=10)
+            ax.set_title(title_txt, fontsize=11, pad=10)
+            ax.tick_params(axis="y", labelsize=9.5)
+            ax.grid(axis="x", linestyle="--", alpha=0.3)
             if font_prop:
                 for lbl in ax.get_yticklabels():
                     lbl.set_fontproperties(font_prop)
-            plt.tight_layout()
+            fig.tight_layout()
             st.pyplot(fig)
             plt.close(fig)
 
     st.divider()
-    st.markdown("#### Detail Fitur Medan Makna, Frasa Semantik *Frame*, Bobot TF-IDF, dan Koefisien SVM")
+    st.markdown("#### Detail Fitur Medan Makna, Frasa Semantik *Frame*, Bobot TF-IDF, dan Koefisien Model")
     ext_col1, ext_col2 = st.columns(2)
 
     with ext_col1:
-        st.markdown("##### 1. Ekstraksi Medan Makna (*Unigram*)")
+        st.markdown("##### 1. Ekstraksi Medan Makna")
         st.write(
-            f"Koefisien SVM (+) : `{len(medan_res['positive_coefs'])}` kata "
+            f"Koefisien (+) : `{len(medan_res['positive_coefs'])}` kata "
             f"(total **`+{medan_res['total_positive_coef']:.4f}`**) | "
-            f"Koefisien SVM (-) : `{len(medan_res['negative_coefs'])}` kata "
+            f"Koefisien (-) : `{len(medan_res['negative_coefs'])}` kata "
             f"(total **`{medan_res['total_negative_coef']:.4f}`**) | "
             f"Bias (`intercept`): `{medan_res['intercept']:.4f}`"
         )
@@ -492,33 +508,37 @@ def _render_classification_tab(
             columns={
                 "term": "Kata Medan Makna",
                 "tfidf_weight": "Bobot TF-IDF",
-                "svm_coef": "Koefisien SVM",
+                "svm_coef": "Koefisien Model",
                 "contribution": "Kontribusi",
             }
         )
         if not medan_df.empty:
             medan_top = medan_df.sort_values(
-                by="Koefisien SVM", key=lambda s: s.abs(), ascending=False
+                by="Koefisien Model", key=lambda s: s.abs(), ascending=False
             ).head(top_n_features)
-            fig_m, ax_m = plt.subplots(figsize=(7, 4.6))
-            plot_m = medan_top.sort_values("Koefisien SVM", ascending=True)
+            fig_h_m = max(4.6, 0.34 * len(medan_top) + 1.4)
+            fig_m, ax_m = plt.subplots(figsize=(7.6, fig_h_m))
+            plot_m = medan_top.sort_values("Koefisien Model", ascending=True)
             ax_m.barh(
                 [reshape_arabic_for_plot(t) for t in plot_m["Kata Medan Makna"]],
-                plot_m["Koefisien SVM"],
-                color=["#16a34a" if v > 0 else "#dc2626" for v in plot_m["Koefisien SVM"]],
+                plot_m["Koefisien Model"],
+                color=["#16a34a" if v > 0 else "#dc2626" for v in plot_m["Koefisien Model"]],
+                height=0.68,
             )
             ax_m.axvline(0, color="black", linewidth=0.8)
-            ax_m.set_title(f"Top {len(plot_m)} Koefisien SVM Medan Makna (+/-)")
-            ax_m.set_xlabel("Koefisien Hyperplane SVM (coef_)")
+            ax_m.set_title(f"Top {len(plot_m)} Koefisien Medan Makna (+/-)", fontsize=11, pad=10)
+            ax_m.set_xlabel("Koefisien Hyperplane", fontsize=10)
+            ax_m.tick_params(axis="y", labelsize=9.5)
+            ax_m.grid(axis="x", linestyle="--", alpha=0.3)
             if font_prop:
                 for lbl in ax_m.get_yticklabels():
                     lbl.set_fontproperties(font_prop)
-            plt.tight_layout()
+            fig_m.tight_layout()
             st.pyplot(fig_m)
             plt.close(fig_m)
 
             st.dataframe(
-                medan_df[["Kata Medan Makna", "Bobot TF-IDF", "Koefisien SVM", "Kontribusi"]].head(
+                medan_df[["Kata Medan Makna", "Bobot TF-IDF", "Koefisien Model", "Kontribusi"]].head(
                     top_n_features
                 ),
                 width="stretch",
@@ -526,43 +546,49 @@ def _render_classification_tab(
             )
 
     with ext_col2:
-        st.markdown("##### 2. Ekstraksi Semantik *Frame* (*Bigram & Trigram*)")
+        st.markdown("##### 2. Ekstraksi Semantik *Frame*")
         st.write(
-            f"Koefisien SVM (+) : `{len(frame_res['positive_coefs'])}` frasa "
+            f"Koefisien (+) : `{len(frame_res['positive_coefs'])}` frasa "
             f"(total **`+{frame_res['total_positive_coef']:.4f}`**) | "
-            f"Koefisien SVM (-) : `{len(frame_res['negative_coefs'])}` frasa "
+            f"Koefisien (-) : `{len(frame_res['negative_coefs'])}` frasa "
             f"(total **`{frame_res['total_negative_coef']:.4f}`**) | "
             f"Bias (`intercept`): `{frame_res['intercept']:.4f}`"
         )
         frame_df = pd.DataFrame(frame_res["features_by_tfidf"]).rename(
             columns={
                 "term": "Frasa Semantik Frame",
-                "n_tokens": "N-Gram",
+                "n_tokens": "Jumlah Kata",
                 "tfidf_weight": "Bobot TF-IDF",
-                "svm_coef": "Koefisien SVM",
+                "svm_coef": "Koefisien Model",
                 "contribution": "Kontribusi",
             }
         )
         if not frame_df.empty:
             frame_top = frame_df.head(top_n_features).iloc[::-1]
-            fig_f, ax_f = plt.subplots(figsize=(7, 4.6))
+            fig_h_f = max(4.6, 0.34 * len(frame_top) + 1.4)
+            fig_f, ax_f = plt.subplots(figsize=(7.6, fig_h_f))
             ax_f.barh(
                 [reshape_arabic_for_plot(t) for t in frame_top["Frasa Semantik Frame"]],
                 frame_top["Bobot TF-IDF"],
                 color="#0d9488",
+                height=0.68,
             )
-            ax_f.set_title(f"Top {len(frame_top)} Frasa Semantik Frame (Bobot TF-IDF)")
-            ax_f.set_xlabel("Bobot TF-IDF")
+            max_w = float(frame_top["Bobot TF-IDF"].max()) if len(frame_top) else 1.0
+            ax_f.set_xlim(0, max_w * 1.15)
+            ax_f.set_title(f"Top {len(frame_top)} Frasa Semantik Frame (Bobot TF-IDF)", fontsize=11, pad=10)
+            ax_f.set_xlabel("Bobot TF-IDF", fontsize=10)
+            ax_f.tick_params(axis="y", labelsize=9.5)
+            ax_f.grid(axis="x", linestyle="--", alpha=0.3)
             if font_prop:
                 for lbl in ax_f.get_yticklabels():
                     lbl.set_fontproperties(font_prop)
-            plt.tight_layout()
+            fig_f.tight_layout()
             st.pyplot(fig_f)
             plt.close(fig_f)
 
             st.dataframe(
                 frame_df[
-                    ["Frasa Semantik Frame", "N-Gram", "Bobot TF-IDF", "Koefisien SVM", "Kontribusi"]
+                    ["Frasa Semantik Frame", "Jumlah Kata", "Bobot TF-IDF", "Koefisien Model", "Kontribusi"]
                 ].head(top_n_features),
                 width="stretch",
                 hide_index=True,
@@ -599,27 +625,64 @@ def _render_corpus_and_lexicons_tab(
 
         col_c1, col_c2 = st.columns(2)
         with col_c1:
-            fig_cat, ax_cat = plt.subplots(figsize=(7.5, 4.8))
+            fig_cat, ax_cat = plt.subplots(figsize=(8.2, 5.4))
             labels_cat = [
                 f"{r['Terjemahan']} ({reshape_arabic_for_plot(r['Kategori'])})"
                 for _, r in cat_df.iterrows()
             ]
-            ax_cat.barh(labels_cat[::-1], cat_df["Artikel Valid"].tolist()[::-1], color="#2563eb")
-            ax_cat.set_title("Distribusi Artikel pada 11 Kategori")
-            ax_cat.set_xlabel("Jumlah Artikel Valid")
+            vals_cat = cat_df["Artikel Valid"].tolist()[::-1]
+            bars_cat = ax_cat.barh(labels_cat[::-1], vals_cat, color="#2563eb", height=0.68)
+            max_cat = max(vals_cat) if vals_cat else 1
+            for bar, val in zip(bars_cat, vals_cat):
+                ax_cat.text(
+                    val + max_cat * 0.015,
+                    bar.get_y() + bar.get_height() / 2,
+                    f"{val:,}",
+                    va="center",
+                    fontsize=8.5,
+                    color="#1e293b",
+                )
+            ax_cat.set_xlim(0, max_cat * 1.18)
+            ax_cat.set_title("Distribusi Artikel pada 11 Kategori", fontsize=11.5, pad=10)
+            ax_cat.set_xlabel("Jumlah Artikel Valid", fontsize=10)
+            ax_cat.tick_params(axis="y", labelsize=9.5)
+            ax_cat.grid(axis="x", linestyle="--", alpha=0.3)
             if font_prop:
                 for lbl in ax_cat.get_yticklabels():
                     lbl.set_fontproperties(font_prop)
-            plt.tight_layout()
+            fig_cat.tight_layout()
             st.pyplot(fig_cat)
             plt.close(fig_cat)
 
         with col_c2:
-            fig_src, ax_src = plt.subplots(figsize=(7.5, 4.8))
-            src_labels = [f"{r['Portal Berita']} ({r['Asal Negara']})" for _, r in src_df.iterrows()]
-            ax_src.pie(src_df["Jumlah Artikel"], labels=src_labels, autopct="%1.1f%%", startangle=140)
-            ax_src.set_title("Proporsi Sumber 6 Portal Berita Arab")
-            plt.tight_layout()
+            fig_src, ax_src = plt.subplots(figsize=(8.2, 5.4))
+            total_src = float(src_df["Jumlah Artikel"].sum()) or 1.0
+            colors_src = plt.cm.Set2(np.linspace(0.05, 0.85, len(src_df)))
+            wedges, _, _ = ax_src.pie(
+                src_df["Jumlah Artikel"],
+                labels=None,
+                autopct=lambda pct: f"{pct:.1f}%" if pct >= 4.0 else "",
+                pctdistance=0.76,
+                startangle=140,
+                colors=colors_src,
+                wedgeprops={"width": 0.48, "edgecolor": "white", "linewidth": 1.5},
+            )
+            legend_labels = [
+                f"{r['Portal Berita']} ({r['Asal Negara']}) — {r['Jumlah Artikel'] / total_src * 100:.1f}%"
+                for _, r in src_df.iterrows()
+            ]
+            ax_src.legend(
+                wedges,
+                legend_labels,
+                title="Portal Berita Arab",
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.02),
+                ncol=2,
+                fontsize=8.5,
+                frameon=False,
+            )
+            ax_src.set_title("Proporsi Sumber 6 Portal Berita Arab", fontsize=11.5, pad=10)
+            fig_src.tight_layout()
             st.pyplot(fig_src)
             plt.close(fig_src)
 
@@ -646,24 +709,24 @@ def _render_corpus_and_lexicons_tab(
         else:
             st.dataframe(lex["frame_tfidf"], width="stretch", hide_index=True)
 
-        st.markdown(f"**Top-15 Kata Unigram Tanpa Stopwords (`{chosen_name}`)**")
-        if lex["unigram"].empty:
-            st.info("Belum tersedia. Jalankan Notebook 03 untuk menghasilkan daftar Unigram teratas.")
+        st.markdown(f"**Top-15 Kata Inti Tanpa Stopwords (`{chosen_name}`)**")
+        if lex["core_words"].empty:
+            st.info("Belum tersedia. Jalankan Notebook 03 untuk menghasilkan daftar kata teratas.")
         else:
-            st.dataframe(lex["unigram"], width="stretch", hide_index=True)
+            st.dataframe(lex["core_words"], width="stretch", hide_index=True)
 
     with k2:
-        st.markdown(f"**Top-15 Bigram Frekuensi Tertinggi (`{chosen_name}`)**")
-        if lex["bigram"].empty:
-            st.info("Belum tersedia. Jalankan Notebook 03 untuk menghasilkan daftar Bigram teratas.")
+        st.markdown(f"**Top-15 Frasa 2 Kata Frekuensi Tertinggi (`{chosen_name}`)**")
+        if lex["phrase_2"].empty:
+            st.info("Belum tersedia. Jalankan Notebook 03 untuk menghasilkan daftar frasa teratas.")
         else:
-            st.dataframe(lex["bigram"], width="stretch", hide_index=True)
+            st.dataframe(lex["phrase_2"], width="stretch", hide_index=True)
 
-        st.markdown(f"**Top-15 Trigram Frekuensi Tertinggi (`{chosen_name}`)**")
-        if lex["trigram"].empty:
-            st.info("Belum tersedia. Jalankan Notebook 03 untuk menghasilkan daftar Trigram teratas.")
+        st.markdown(f"**Top-15 Frasa 3 Kata Frekuensi Tertinggi (`{chosen_name}`)**")
+        if lex["phrase_3"].empty:
+            st.info("Belum tersedia. Jalankan Notebook 03 untuk menghasilkan daftar frasa teratas.")
         else:
-            st.dataframe(lex["trigram"], width="stretch", hide_index=True)
+            st.dataframe(lex["phrase_3"], width="stretch", hide_index=True)
 
 
 def _render_evaluation_tab(
@@ -686,8 +749,8 @@ def _render_evaluation_tab(
 
     st.markdown(
         f"""
-        Perbandingan eksperimen pada {len(perf_df)} model antara representasi **Dengan Semantik *Frame*** (*bigram & trigram*, `N={svm_frame['support']:,}`)
-        dan **Tanpa Semantik *Frame* / Medan Makna** (*unigram*, `N={svm_medan['support']:,}`).
+        Perbandingan eksperimen pada {len(perf_df)} model antara pendekatan **Dengan Semantik *Frame*** (`N={svm_frame['support']:,}`)
+        dan **Tanpa Semantik *Frame* / Medan Makna** (`N={svm_medan['support']:,}`).
         """
     )
 
@@ -702,34 +765,50 @@ def _render_evaluation_tab(
     x = np.arange(len(perf_df))
     w = 0.36
     short_names = eval_tables["short_names"]
-    fig, axes = plt.subplots(1, 3, figsize=(17, 4.6))
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5.4))
 
     min_acc = float(min(perf_df["Akurasi Frame"].min(), perf_df["Akurasi Medan"].min()) * 100)
-    axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Semantik Frame", color="#0d9488")
-    axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color="#2563eb")
-    axes[0].set_ylim(max(0.0, min_acc - 5.0), 100.0)
-    axes[0].set_xticks(x, short_names, rotation=18)
-    axes[0].set_title("Akurasi (%)")
-    axes[0].legend()
+    b1 = axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Semantik Frame", color="#0d9488")
+    b2 = axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color="#2563eb")
+    axes[0].set_ylim(max(0.0, min_acc - 5.0), 96.0)
+    axes[0].set_xticks(x)
+    axes[0].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
+    axes[0].set_title("Akurasi (%)", fontsize=11, pad=10)
+    axes[0].grid(axis="y", linestyle="--", alpha=0.3)
 
-    axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, label="Semantik Frame", color="#0d9488")
-    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, label="Medan Makna", color="#2563eb")
-    axes[1].set_xticks(x, short_names, rotation=18)
-    axes[1].set_title("Waktu Evaluasi (detik)")
-    axes[1].legend()
+    axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, color="#0d9488")
+    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, color="#2563eb")
+    max_t = float(max(eff_df["Waktu Frame (s)"].max(), eff_df["Waktu Medan (s)"].max()))
+    axes[1].set_ylim(0, max_t * 1.15 if max_t else 1.0)
+    axes[1].set_xticks(x)
+    axes[1].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
+    axes[1].set_title("Waktu Evaluasi (detik)", fontsize=11, pad=10)
+    axes[1].grid(axis="y", linestyle="--", alpha=0.3)
 
-    axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, label="Semantik Frame", color="#0d9488")
-    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, label="Medan Makna", color="#2563eb")
-    axes[2].set_xticks(x, short_names, rotation=18)
-    axes[2].set_title("Penggunaan RAM Puncak (MB)")
-    axes[2].legend()
+    axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, color="#0d9488")
+    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, color="#2563eb")
+    max_r = float(max(eff_df["RAM Frame (MB)"].max(), eff_df["RAM Medan (MB)"].max()))
+    axes[2].set_ylim(0, max_r * 1.15 if max_r else 1.0)
+    axes[2].set_xticks(x)
+    axes[2].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
+    axes[2].set_title("Penggunaan RAM Puncak (MB)", fontsize=11, pad=10)
+    axes[2].grid(axis="y", linestyle="--", alpha=0.3)
 
-    plt.tight_layout()
+    fig.legend(
+        [b1[0], b2[0]],
+        ["Semantik Frame", "Medan Makna"],
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.02),
+        ncol=2,
+        fontsize=10.5,
+        frameon=False,
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
     st.pyplot(fig)
     plt.close(fig)
 
     st.divider()
-    st.subheader("Performa Per-Kategori & Confusion Matrix Model Terbaik SVM (LinearSVC C=10)")
+    st.subheader("Performa Per-Kategori & Confusion Matrix Model Terbaik SVM")
 
     scheme_choice = st.radio(
         "Pilih Skema Evaluasi SVM:",
@@ -755,10 +834,10 @@ def _render_evaluation_tab(
         ]
     )
 
-    cm_col1, cm_col2 = st.columns([1.2, 1])
+    cm_col1, cm_col2 = st.columns([1.25, 1])
     with cm_col1:
         labels_ar = [reshape_arabic_for_plot(LABELS[i]) for i in range(1, 12)]
-        fig_cm, ax_cm = plt.subplots(figsize=(8.5, 7.2))
+        fig_cm, ax_cm = plt.subplots(figsize=(9.8, 8.4))
         sns.heatmap(
             active_svm["confusion_matrix"],
             annot=True,
@@ -766,17 +845,22 @@ def _render_evaluation_tab(
             cmap="Blues",
             xticklabels=labels_ar,
             yticklabels=labels_ar,
+            cbar_kws={"shrink": 0.82},
             ax=ax_cm,
         )
         ax_cm.set_title(
-            f"Confusion Matrix SVM — Akurasi: {active_svm['accuracy'] * 100:.2f}% (N = {active_svm['support']:,})"
+            f"Confusion Matrix SVM — Akurasi: {active_svm['accuracy'] * 100:.2f}% (N = {active_svm['support']:,})",
+            fontsize=11.5,
+            pad=14,
         )
-        ax_cm.set_xlabel("Prediksi")
-        ax_cm.set_ylabel("Aktual")
+        ax_cm.set_xlabel("Prediksi", fontsize=10.5, labelpad=8)
+        ax_cm.set_ylabel("Aktual", fontsize=10.5, labelpad=8)
+        ax_cm.set_xticklabels(labels_ar, rotation=32, ha="right", fontsize=10)
+        ax_cm.set_yticklabels(labels_ar, rotation=0, fontsize=10)
         if font_prop:
             for lbl in ax_cm.get_xticklabels() + ax_cm.get_yticklabels():
                 lbl.set_fontproperties(font_prop)
-        plt.tight_layout()
+        fig_cm.tight_layout()
         st.pyplot(fig_cm)
         plt.close(fig_cm)
 
@@ -796,14 +880,14 @@ def _render_methodology_tab() -> None:
            pada 11 kategori tematik.
         2. **Tahap 2 — Pra-pemrosesan Teks & Pembagian Dataset**:
            - Pembersihan angka, tanda baca Arab (`،؛؟`) & ASCII, konversi huruf kecil, dan tokenisasi.
-           - **Jalur Medan Makna (*Unigram*)**: menghapus *stopwords* untuk menyorot kata leksikal inti (pembagian data `80% / 15% / 5%`).
-           - **Jalur Semantik *Frame* (*Bigram & Trigram*)**: mempertahankan preposisi/partikel Arab (`في`, `من`, `على`, `إلى`, `أن`) sebagai unsur pembentuk struktur frasa kontekstual 2–3 kata (pembagian data `85% / 10% / 5%`).
-        3. **Tahap 3 — Statistik Korpus & Frekuensi N-Gram**:
-           - Menghitung distribusi token, tipe kosakata unik Arab vs Non-Arab, serta Top-1000 *Unigram*, *Bigram*, dan *Trigram* tiap kategori.
+           - **Jalur Medan Makna**: menghapus *stopwords* untuk menyorot kata leksikal inti (pembagian data `80% / 15% / 5%`).
+           - **Jalur Semantik *Frame***: mempertahankan preposisi/partikel Arab (`في`, `من`, `على`, `إلى`, `أن`) sebagai unsur pembentuk struktur frasa kontekstual 2–3 kata (pembagian data `85% / 10% / 5%`).
+        3. **Tahap 3 — Statistik Korpus & Distribusi Kata/Frasa**:
+           - Menghitung distribusi token, tipe kosakata unik Arab vs Non-Arab, serta Top-1000 kata dan frasa berita tiap kategori.
         4. **Tahap 4 — Pelatihan, Efisiensi Komputasi & Evaluasi 5 Model**:
-           - Melatih lima algoritma klasifikasi (*SVM `LinearSVC(C=10)`*, *Logistic Regression*, *Naïve Bayes*, *Random Forest*, dan *Gradient Boosting*), memantau konsumsi RAM & CPU via `psutil`, serta menyimpan model SVM terbaik ke `models/`.
-        5. **Tahap 5 — Kamus TF-IDF Semantik *Frame* & Ekstraksi Fitur SVM**:
-           - Menyusun kamus bobot TF-IDF *bigram* & *trigram* per kategori dan memetakan `decision_function` melalui fungsi **Sigmoid** ($\\sigma(z) = \\frac{1}{1 + e^{-z}}$) untuk menampilkan kata/frasa berkoefisien positif (`+`) dan negatif (`-`).
+           - Melatih lima algoritma klasifikasi (*SVM*, *Logistic Regression*, *Naïve Bayes*, *Random Forest*, dan *Gradient Boosting*), memantau konsumsi RAM & CPU via `psutil`, serta menyimpan model terbaik **SVM** ke `models/`.
+        5. **Tahap 5 — Kamus TF-IDF Semantik *Frame* & Ekstraksi Fitur**:
+           - Menyusun kamus bobot TF-IDF frasa kontekstual per kategori dan memetakan skor keputusan melalui fungsi **Sigmoid** ($\\sigma(z) = \\frac{1}{1 + e^{-z}}$) untuk menampilkan kata/frasa berkoefisien positif (`+`) dan negatif (`-`).
         """
     )
 
@@ -818,8 +902,8 @@ def main() -> None:
 
     st.title("Klasifikasi Artikel Berita Arab Berbasis Medan Makna dan Semantik *Frame*")
     st.caption(
-        "Demo interaktif klasifikasi berita Arab (11 kategori), ekstraksi fitur Medan Makna (unigram), "
-        "Semantik Frame (bigram/trigram), koefisien SVM, serta evaluasi efisiensi & efektivitas model."
+        "Demo interaktif klasifikasi berita Arab (11 kategori), ekstraksi Medan Makna dan Semantik Frame, "
+        "bobot kontribusi fitur, serta evaluasi efisiensi & efektivitas model."
     )
 
     bundles = get_cached_bundles()
