@@ -16,7 +16,7 @@ def create_tfidf_vectorizer(
     ngram_range: Tuple[int, int] = (2, 3),
     tokenizer: Optional[Callable[[str], List[str]]] = None,
 ) -> TfidfVectorizer:
-    """Membuat TfidfVectorizer untuk representasi Medan Makna (1,1) atau Semantik Frame (2,3)."""
+    """Membuat TfidfVectorizer untuk representasi Medan Makna (unigram) atau Semantik Frame (bigram–trigram)."""
     return TfidfVectorizer(ngram_range=ngram_range, tokenizer=tokenizer)
 
 

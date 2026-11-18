@@ -24,7 +24,7 @@ MODEL_FILE_SLUGS: Dict[str, str] = {
 
 
 def get_classifier_unigram(classify_with: str, random_state: int = RANDOM_SEED):
-    """Mengembalikan lima model klasifikasi untuk konfigurasi Medan Makna Unigram (1,1)."""
+    """Mengembalikan lima model klasifikasi untuk konfigurasi Medan Makna (unigram)."""
     if classify_with == "MultinomialNB":
         return MultinomialNB()
     if classify_with == "SVC":
@@ -161,7 +161,7 @@ def save_deployable_svm_bundle(bundle: Dict[str, Any], output_path: Union[str, P
 def load_compact_svm_bundles(
     models_dir: Optional[Union[str, Path]] = None,
 ) -> Dict[str, Dict[str, Any]]:
-    """Memuat model SVM terlatih (LinearSVC C=10) untuk Medan Makna (1,1) dan Frame Semantik (2,3)."""
+    """Memuat model SVM terlatih (LinearSVC C=10) untuk Medan Makna dan Semantik Frame."""
     base = Path(models_dir) if models_dir else MODELS_DIR
     bundles: Dict[str, Dict[str, Any]] = {}
     for key, filename in (
@@ -356,7 +356,7 @@ def analyze_article_dual_svm(
     bundles: Optional[Dict[str, Dict[str, Any]]] = None,
     stopwords: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
-    """Menjalankan analisis ganda (Medan Makna 1,1 + Frame Semantik 2,3) pada satu artikel Arab."""
+    """Menjalankan analisis ganda (Medan Makna + Semantik Frame) pada satu artikel berbahasa Arab."""
     active_bundles = bundles if bundles is not None else load_compact_svm_bundles()
     stops = stopwords if stopwords is not None else load_stopwords()
 

@@ -68,14 +68,14 @@ SCHEMES_CONFIG: Dict[str, Dict[str, Any]] = {
         "ngram_range": (1, 1),
         "compact_max_features": 500_000,
         "compact_filename": "svm_medan_makna.joblib",
-        "label": "Medan Makna (1,1 — 80/15/5 — hapus stopwords)",
+        "label": "Medan Makna (Unigram, 80/15/5, hapus stopwords)",
     },
     "frame_semantik": {
         "metrics_subdir": "frame_semantik",
         "ngram_range": (2, 3),
         "compact_max_features": 700_000,
         "compact_filename": "svm_frame_semantik.joblib",
-        "label": "Semantik Frame (2,3 — 85/10/5 — retensi preposisi)",
+        "label": "Semantik Frame (Bigram-Trigram, 85/10/5, retensi preposisi)",
     },
 }
 
@@ -359,12 +359,12 @@ def rebuild_summary_and_figures(
         perf_rows.append(
             {
                 "Model": display_name,
-                "Acc Frame (2,3)": round(mf["accuracy"], 4),
+                "Akurasi Frame": round(mf["accuracy"], 4),
                 "Prec Frame": round(mf["precision"], 4),
                 "Rec Frame": round(mf["recall"], 4),
                 "F1 Frame": round(mf["f1_score"], 4),
                 "Support Frame": int(mf["support"]),
-                "Acc Medan (1,1)": round(mn["accuracy"], 4),
+                "Akurasi Medan": round(mn["accuracy"], 4),
                 "Prec Medan": round(mn["precision"], 4),
                 "Rec Medan": round(mn["recall"], 4),
                 "F1 Medan": round(mn["f1_score"], 4),
@@ -386,22 +386,22 @@ def rebuild_summary_and_figures(
         x = np.arange(len(perf_df))
         w = 0.35
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-        min_acc = float(min(perf_df["Acc Frame (2,3)"].min(), perf_df["Acc Medan (1,1)"].min()) * 100)
-        axes[0].bar(x - w / 2, perf_df["Acc Frame (2,3)"] * 100, w, label="Dengan Frame (2,3)")
-        axes[0].bar(x + w / 2, perf_df["Acc Medan (1,1)"] * 100, w, label="Tanpa Frame / Medan (1,1)")
+        min_acc = float(min(perf_df["Akurasi Frame"].min(), perf_df["Akurasi Medan"].min()) * 100)
+        axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Dengan Semantik Frame")
+        axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna")
         axes[0].set_title("Perbandingan Akurasi (%)")
         axes[0].set_ylim(max(0.0, min_acc - 5.0), 100.0)
         axes[0].set_xticks(x, short_names, rotation=20)
         axes[0].legend()
 
-        axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, label="Dengan Frame (2,3)")
-        axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, label="Tanpa Frame / Medan (1,1)")
+        axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, label="Dengan Semantik Frame")
+        axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, label="Medan Makna")
         axes[1].set_title("Waktu Evaluasi (detik)")
         axes[1].set_xticks(x, short_names, rotation=20)
         axes[1].legend()
 
-        axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, label="Dengan Frame (2,3)")
-        axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, label="Tanpa Frame / Medan (1,1)")
+        axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, label="Dengan Semantik Frame")
+        axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, label="Medan Makna")
         axes[2].set_title("Konsumsi RAM Puncak (MB)")
         axes[2].set_xticks(x, short_names, rotation=20)
         axes[2].legend()

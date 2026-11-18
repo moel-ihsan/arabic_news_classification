@@ -91,12 +91,12 @@ def load_evaluation_summary_tables(metrics_dir: Optional[Path] = None) -> Dict[s
         perf_rows.append(
             {
                 "Model": label_name,
-                "Acc Frame (2,3)": mf["accuracy"],
+                "Akurasi Frame": mf["accuracy"],
                 "Prec Frame": mf["precision"],
                 "Rec Frame": mf["recall"],
                 "F1 Frame": mf["f1_score"],
                 "Support Frame": mf["support"],
-                "Acc Medan (1,1)": mn["accuracy"],
+                "Akurasi Medan": mn["accuracy"],
                 "Prec Medan": mn["precision"],
                 "Rec Medan": mn["recall"],
                 "F1 Medan": mn["f1_score"],
@@ -322,8 +322,8 @@ def _render_sidebar(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any]) -
             """
         )
         st.metric("Total Artikel Valid Korpus", f"{total_valid:,}" if total_valid else "Belum dihitung (NB 01/03)")
-        st.metric("Akurasi SVM Semantik Frame (2,3)", f"{svm_f['accuracy'] * 100:.2f}%" if svm_f else "Belum dilatih (NB 04)")
-        st.metric("Akurasi SVM Medan Makna (1,1)", f"{svm_m['accuracy'] * 100:.2f}%" if svm_m else "Belum dilatih (NB 04)")
+        st.metric("Akurasi SVM Semantik Frame", f"{svm_f['accuracy'] * 100:.2f}%" if svm_f else "Belum dilatih (NB 04)")
+        st.metric("Akurasi SVM Medan Makna", f"{svm_m['accuracy'] * 100:.2f}%" if svm_m else "Belum dilatih (NB 04)")
 
         st.divider()
         st.subheader("Publikasi Ilmiah")
@@ -390,7 +390,7 @@ def _render_classification_tab(
         st.info("Masukkan teks berita berbahasa Arab di atas untuk melihat prediksi kategori dan fitur semantik.")
         return
 
-    with st.spinner("Mengekstrak Medan Makna (1,1), Semantik Frame (2,3), dan koefisien SVM..."):
+    with st.spinner("Mengekstrak fitur Medan Makna, frasa Semantik Frame, dan koefisien SVM..."):
         dual = analyze_article_dual_svm(input_text, bundles=bundles, stopwords=stopwords)
 
     medan_res = dual["medan_makna"]
@@ -405,7 +405,7 @@ def _render_classification_tab(
     with c1:
         top_prob_f = frame_res["category_scores"][0]["sigmoid_percent"]
         st.success(
-            f"**Prediksi Semantik Frame (2,3)**: `{frame_res['predicted_category']}` "
+            f"**Prediksi Semantik Frame**: `{frame_res['predicted_category']}` "
             f"— **{frame_res['predicted_category_id']}** ({frame_res['predicted_category_en']})"
         )
         m1, m2, m3 = st.columns(3)
@@ -416,7 +416,7 @@ def _render_classification_tab(
     with c2:
         top_prob_m = medan_res["category_scores"][0]["sigmoid_percent"]
         st.info(
-            f"**Prediksi Medan Makna (1,1)**: `{medan_res['predicted_category']}` "
+            f"**Prediksi Medan Makna**: `{medan_res['predicted_category']}` "
             f"— **{medan_res['predicted_category_id']}** ({medan_res['predicted_category_en']})"
         )
         n1, n2, n3 = st.columns(3)
@@ -480,7 +480,7 @@ def _render_classification_tab(
     ext_col1, ext_col2 = st.columns(2)
 
     with ext_col1:
-        st.markdown("##### 1. Ekstraksi Medan Makna (`ngram_range=(1, 1)`)")
+        st.markdown("##### 1. Ekstraksi Medan Makna (*Unigram*)")
         st.write(
             f"Koefisien SVM (+) : `{len(medan_res['positive_coefs'])}` kata "
             f"(total **`+{medan_res['total_positive_coef']:.4f}`**) | "
@@ -526,7 +526,7 @@ def _render_classification_tab(
             )
 
     with ext_col2:
-        st.markdown("##### 2. Ekstraksi Semantik *Frame* (`ngram_range=(2, 3)`)")
+        st.markdown("##### 2. Ekstraksi Semantik *Frame* (*Bigram & Trigram*)")
         st.write(
             f"Koefisien SVM (+) : `{len(frame_res['positive_coefs'])}` frasa "
             f"(total **`+{frame_res['total_positive_coef']:.4f}`**) | "
@@ -536,7 +536,7 @@ def _render_classification_tab(
         )
         frame_df = pd.DataFrame(frame_res["features_by_tfidf"]).rename(
             columns={
-                "term": "Frasa Frame (2-3 Kata)",
+                "term": "Frasa Semantik Frame",
                 "n_tokens": "N-Gram",
                 "tfidf_weight": "Bobot TF-IDF",
                 "svm_coef": "Koefisien SVM",
@@ -547,7 +547,7 @@ def _render_classification_tab(
             frame_top = frame_df.head(top_n_features).iloc[::-1]
             fig_f, ax_f = plt.subplots(figsize=(7, 4.6))
             ax_f.barh(
-                [reshape_arabic_for_plot(t) for t in frame_top["Frasa Frame (2-3 Kata)"]],
+                [reshape_arabic_for_plot(t) for t in frame_top["Frasa Semantik Frame"]],
                 frame_top["Bobot TF-IDF"],
                 color="#0d9488",
             )
@@ -562,7 +562,7 @@ def _render_classification_tab(
 
             st.dataframe(
                 frame_df[
-                    ["Frasa Frame (2-3 Kata)", "N-Gram", "Bobot TF-IDF", "Koefisien SVM", "Kontribusi"]
+                    ["Frasa Semantik Frame", "N-Gram", "Bobot TF-IDF", "Koefisien SVM", "Kontribusi"]
                 ].head(top_n_features),
                 width="stretch",
                 hide_index=True,
@@ -686,8 +686,8 @@ def _render_evaluation_tab(
 
     st.markdown(
         f"""
-        Perbandingan eksperimen pada {len(perf_df)} model antara representasi **Dengan Semantik *Frame* (`ngram=(2,3)`, `N={svm_frame['support']:,}`)**
-        dan **Tanpa Semantik *Frame* / Medan Makna (`ngram=(1,1)`, `N={svm_medan['support']:,}`)**.
+        Perbandingan eksperimen pada {len(perf_df)} model antara representasi **Dengan Semantik *Frame*** (*bigram & trigram*, `N={svm_frame['support']:,}`)
+        dan **Tanpa Semantik *Frame* / Medan Makna** (*unigram*, `N={svm_medan['support']:,}`).
         """
     )
 
@@ -704,22 +704,22 @@ def _render_evaluation_tab(
     short_names = eval_tables["short_names"]
     fig, axes = plt.subplots(1, 3, figsize=(17, 4.6))
 
-    min_acc = float(min(perf_df["Acc Frame (2,3)"].min(), perf_df["Acc Medan (1,1)"].min()) * 100)
-    axes[0].bar(x - w / 2, perf_df["Acc Frame (2,3)"] * 100, w, label="Semantik Frame (2,3)", color="#0d9488")
-    axes[0].bar(x + w / 2, perf_df["Acc Medan (1,1)"] * 100, w, label="Medan Makna (1,1)", color="#2563eb")
+    min_acc = float(min(perf_df["Akurasi Frame"].min(), perf_df["Akurasi Medan"].min()) * 100)
+    axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Semantik Frame", color="#0d9488")
+    axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color="#2563eb")
     axes[0].set_ylim(max(0.0, min_acc - 5.0), 100.0)
     axes[0].set_xticks(x, short_names, rotation=18)
     axes[0].set_title("Akurasi (%)")
     axes[0].legend()
 
-    axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, label="Semantik Frame (2,3)", color="#0d9488")
-    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, label="Medan Makna (1,1)", color="#2563eb")
+    axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, label="Semantik Frame", color="#0d9488")
+    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, label="Medan Makna", color="#2563eb")
     axes[1].set_xticks(x, short_names, rotation=18)
     axes[1].set_title("Waktu Evaluasi (detik)")
     axes[1].legend()
 
-    axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, label="Semantik Frame (2,3)", color="#0d9488")
-    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, label="Medan Makna (1,1)", color="#2563eb")
+    axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, label="Semantik Frame", color="#0d9488")
+    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, label="Medan Makna", color="#2563eb")
     axes[2].set_xticks(x, short_names, rotation=18)
     axes[2].set_title("Penggunaan RAM Puncak (MB)")
     axes[2].legend()
@@ -734,12 +734,12 @@ def _render_evaluation_tab(
     scheme_choice = st.radio(
         "Pilih Skema Evaluasi SVM:",
         [
-            f"Dengan Semantik Frame (2,3) — Akurasi {svm_frame['accuracy'] * 100:.2f}%",
-            f"Medan Makna / Tanpa Frame (1,1) — Akurasi {svm_medan['accuracy'] * 100:.2f}%",
+            f"Dengan Semantik Frame — Akurasi {svm_frame['accuracy'] * 100:.2f}%",
+            f"Tanpa Semantik Frame (Medan Makna) — Akurasi {svm_medan['accuracy'] * 100:.2f}%",
         ],
         horizontal=True,
     )
-    active_svm = svm_frame if "Semantik Frame" in scheme_choice else svm_medan
+    active_svm = svm_frame if scheme_choice.startswith("Dengan Semantik Frame") else svm_medan
 
     per_class_df = pd.DataFrame(
         [
@@ -796,8 +796,8 @@ def _render_methodology_tab() -> None:
            pada 11 kategori tematik.
         2. **Tahap 2 — Pra-pemrosesan Teks & Pembagian Dataset**:
            - Pembersihan angka, tanda baca Arab (`،؛؟`) & ASCII, konversi huruf kecil, dan tokenisasi.
-           - **Jalur Medan Makna (`ngram_range=(1, 1)`)**: menghapus *stopwords* untuk menyorot kata leksikal inti (pembagian data `80% / 15% / 5%`).
-           - **Jalur Semantik *Frame* (`ngram_range=(2, 3)`)**: mempertahankan preposisi/partikel Arab (`في`, `من`, `على`, `إلى`, `أن`) sebagai unsur pembentuk struktur frasa 2–3 kata (pembagian data `85% / 10% / 5%`).
+           - **Jalur Medan Makna (*Unigram*)**: menghapus *stopwords* untuk menyorot kata leksikal inti (pembagian data `80% / 15% / 5%`).
+           - **Jalur Semantik *Frame* (*Bigram & Trigram*)**: mempertahankan preposisi/partikel Arab (`في`, `من`, `على`, `إلى`, `أن`) sebagai unsur pembentuk struktur frasa kontekstual 2–3 kata (pembagian data `85% / 10% / 5%`).
         3. **Tahap 3 — Statistik Korpus & Frekuensi N-Gram**:
            - Menghitung distribusi token, tipe kosakata unik Arab vs Non-Arab, serta Top-1000 *Unigram*, *Bigram*, dan *Trigram* tiap kategori.
         4. **Tahap 4 — Pelatihan, Efisiensi Komputasi & Evaluasi 5 Model**:

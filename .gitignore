@@ -27,10 +27,11 @@ htmlcov/
 .env
 .env.*
 
-# Naskah lokal & dokumentasi internal (tidak di-upload ke GitHub)
+# Naskah lokal, catatan sementara & dokumentasi internal (tidak di-upload ke GitHub)
 artikel dengan medan makna.md
 tesis dengan frame semantik.md
 docs/
+note
 
 # Dataset utama berukuran besar (disimpan lokal di data/, tidak di-upload ke GitHub)
 data/basic_articles_dataset.csv

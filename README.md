@@ -1,19 +1,19 @@
 # Klasifikasi Artikel Berita Berbahasa Arab Berbasis Medan Makna (*Semantic Field*) dan Semantik *Frame* (*Frame Semantics*)
 
-Repositori resmi penelitian komputasi linguistik dan *Natural Language Processing* (NLP) untuk klasifikasi multi-kelas (**11 kategori**) pada korpus **170.934 artikel berita daring berbahasa Arab** dari **6 portal berita Timur Tengah dan Afrika Utara**. Proyek ini membandingkan secara sistematis dua pendekatan representasi semantik — **Medan Makna (*Unigram*, `ngram_range=(1, 1)`)** dan **Semantik *Frame* (*Bigram & Trigram*, `ngram_range=(2, 3)`)** — serta menyediakan antarmuka demo interaktif berbasis **Streamlit** dengan dukungan penuh teks *Right-to-Left* (RTL).
+Repositori resmi penelitian komputasi linguistik dan *Natural Language Processing* (NLP) untuk klasifikasi multi-kelas (**11 kategori**) pada korpus **170.934 artikel berita daring berbahasa Arab** dari **6 portal berita Timur Tengah dan Afrika Utara**. Proyek ini membandingkan secara sistematis dua pendekatan representasi semantik — **Medan Makna (*Semantic Field*)** dan **Semantik *Frame* (*Frame Semantics*)** — serta menyediakan antarmuka demo interaktif berbasis **Streamlit** dengan dukungan penuh teks *Right-to-Left* (RTL).
 
 ---
 
 ## Latar Belakang Penelitian
 
-Pemrosesan teks bahasa Arab menghadapi tantangan morfologis dan polisemi yang tinggi ketika kata diperlakukan sebagai unit tunggal yang terlepas dari konteks kalimatnya. Penelitian ini mengevaluasi perbedaan efektivitas dan efisiensi komputasi antara dua representasi fitur TF-IDF pada lima algoritma pembelajaran mesin (*Support Vector Machine*, *Logistic Regression*, *Naïve Bayes*, *Random Forest*, dan *Gradient Boosting*):
+Pemrosesan teks bahasa Arab menghadapi tantangan morfologis dan polisemi yang tinggi ketika kata diperlakukan sebagai unit tunggal yang terlepas dari konteks kalimatnya. Penelitian ini mengevaluasi perbedaan efektivitas dan efisiensi komputasi antara dua pendekatan representasi fitur TF-IDF pada lima algoritma pembelajaran mesin (*Support Vector Machine*, *Logistic Regression*, *Naïve Bayes*, *Random Forest*, dan *Gradient Boosting*):
 
-1. **Pendekatan Medan Makna (*Semantic Field* — `ngram_range=(1, 1)`)**:
-   - Menerapkan penghapusan kata henti (*stopword removal*) untuk menyaring kata leksikal bermakna inti yang merepresentasikan domain topik artikel (`80%` latih / `15%` validasi / `5%` uji).
-   - Model terbaik **SVM** mencapai akurasi **`90,26%`** pada korpus penuh (`N = 25.641`) dan **`90,47%`** pada eksperimen publikasi jurnal awal (`N = 152.793` artikel).
-2. **Pendekatan Semantik *Frame* (*Frame Semantics* — `ngram_range=(2, 3)`)**:
-   - **Mempertahankan kata tugas dan preposisi Arab** (`في`, `من`, `على`, `إلى`, `أن`) karena kata penghubung tersebut membentuk relasi kontekstual 2–3 kata (*semantic frame*) yang membedakan konteks berita secara lebih akurat (`85%` latih / `10%` validasi / `5%` uji).
-   - Model terbaik **SVM (`LinearSVC C=10`)** meningkatkan akurasi menjadi **`90,61%`** (`Precision = 0,9088`, `F1-Score = 0,9068`, `N = 17.096`), dengan akurasi kategori tertinggi pada Olahraga (`F1 = 0,9879`).
+1. **Pendekatan Medan Makna (*Semantic Field*)**:
+   - Merepresentasikan kata tunggal (*unigram*) dengan menerapkan penghapusan kata henti (*stopword removal*) guna menyaring kata leksikal bermakna inti yang mencirikan topik artikel (`80%` latih / `15%` validasi / `5%` uji).
+   - Model **SVM** mencapai akurasi **`90,26%`** pada korpus penuh (`N = 25.641`).
+2. **Pendekatan Semantik *Frame* (*Frame Semantics*)**:
+   - Merepresentasikan frasa kontekstual 2–3 kata (*bigram* dan *trigram*) sambil **mempertahankan kata tugas dan preposisi Arab** (`في`, `من`, `على`, `إلى`, `أن`) karena kata penghubung tersebut membangun bingkai relasi semantik antar-konsep berita (`85%` latih / `10%` validasi / `5%` uji).
+   - Model terbaik **SVM (`LinearSVC C=10`)** meningkatkan akurasi menjadi **`90,61%`** (`Precision = 0,9088`, `F1-Score = 0,9068`, `N = 17.094`), dengan performa kategori tertinggi pada Olahraga (`F1 = 0,9879`).
 
 ---
 
@@ -80,12 +80,13 @@ arabic_news_classification/
 ├── tests/
 │   └── test_reproducibility.py               # Pengujian otomatis pipeline, notebook, CLI, & Streamlit
 ├── .gitignore
+├── CITATION.cff                              # Metadata sitasi akademik GitHub
 ├── LICENSE
 ├── pyproject.toml
 └── requirements.txt
 ```
 
-*(Berkas korpus `data/basic_articles_dataset.csv` berukuran besar dan artefak model lengkap lokal di `models/all_models/` dikecualikan melalui `.gitignore` demi memenuhi batas ukuran GitHub serta menjaga hak cipta portal berita asal. Seluruh keluaran pada direktori `results/` dan `models/` dihasilkan secara dinamis dari sumber tunggal `data/basic_articles_dataset.csv` dan `data/stopwords.txt` saat menjalankan kelima notebook secara berurutan; aplikasi Streamlit memakai bundel model terbaik SVM yaitu `models/svm_medan_makna.joblib` dan `models/svm_frame_semantik.joblib`.)*
+*(Berkas korpus `data/basic_articles_dataset.csv` berukuran besar dan artefak model lengkap lokal di `models/all_models/` dikecualikan melalui `.gitignore` demi memenuhi batas ukuran GitHub serta menjaga hak cipta portal berita asal. Seluruh keluaran pada direktori `results/` dan `models/` dihasilkan dari sumber tunggal `data/basic_articles_dataset.csv` dan `data/stopwords.txt`; apabila Anda menyertakan `results/` (~2,5 MB) beserta bundel model terbaik SVM `models/svm_medan_makna.joblib` (17 MB) dan `models/svm_frame_semantik.joblib` (34 MB) di repositori, aplikasi Streamlit langsung siap dipakai tanpa harus melatih ulang dari awal.)*
 
 ---
 
@@ -146,9 +147,9 @@ streamlit run app/streamlit_app.py
 ```
 
 Fitur utama aplikasi Streamlit:
-- **Klasifikasi & Ekstraksi Ganda (RTL)**: Masukkan artikel berita Arab sendiri atau pilih contoh dari 11 artikel uji, lalu lihat prediksi kategori secara bersamaan dari model **Semantik *Frame* (`2,3`)** dan **Medan Makna (`1,1`)**, distribusi probabilitas *Sigmoid* 11 kelas, serta sorotan teks RTL berbahasa Arab untuk kata berkoefisien SVM positif (`+`) dan negatif (`-`).
+- **Klasifikasi & Ekstraksi Ganda (RTL)**: Masukkan artikel berita Arab sendiri atau pilih contoh dari 11 artikel uji, lalu lihat prediksi kategori secara bersamaan dari model **Semantik *Frame*** dan **Medan Makna**, distribusi probabilitas *Sigmoid* 11 kelas, serta sorotan teks RTL berbahasa Arab untuk kata berkoefisien SVM positif (`+`) dan negatif (`-`).
 - **Inspeksi Bobot TF-IDF & Koefisien Hyperplane SVM**: Menampilkan daftar kata Medan Makna dan frasa Semantik *Frame* beserta bobot TF-IDF, koefisien `coef_` SVM, dan kontribusinya.
-- **Penjelajah Korpus & Kamus 11 Kategori**: Grafik sebaran artikel/portal serta Top-15 frasa *Frame*, *Unigram*, *Bigram*, dan *Trigram* di setiap kategori.
+- **Penjelajah Korpus & Kamus 11 Kategori**: Grafik sebaran artikel/portal serta Top-15 frasa Semantik *Frame*, *Unigram*, *Bigram*, dan *Trigram* di setiap kategori.
 - **Dasbor Evaluasi 5 Algoritma**: Tabel & grafik komparasi akurasi, waktu evaluasi, penggunaan RAM, CPU, dan *heatmap Confusion Matrix* 11×11.
 
 ---
@@ -157,23 +158,21 @@ Fitur utama aplikasi Streamlit:
 
 ### 1. Perbandingan Efektivitas & Efisiensi 5 Model (Korpus Penuh)
 
-| Model | Acc Frame `(2,3)` | F1 Frame | Acc Medan `(1,1)` | F1 Medan | Waktu Frame / Medan (s) | RAM Frame / Medan (MB) |
+| Model | Akurasi Frame | F1 Frame | Akurasi Medan | F1 Medan | Waktu Frame / Medan (s) | RAM Frame / Medan (MB) |
 |---|---:|---:|---:|---:|---:|---:|
-| **SVM (`LinearSVC C=10`)** | **`0,9061`** | **`0,9068`** | `0,9026` | `0,9027` | `6,3101` / `0,1259` | `3804,95` / `723,73` |
-| **Logistic Regression** | `0,9024` | `0,9033` | **`0,9039`** | **`0,9041`** | `12,0157` / `0,1127` | `4014,11` / `839,48` |
-| **Naïve Bayes** | `0,8834` | `0,8835` | `0,8478` | `0,8487` | `11,7019` / `0,1189` | `3587,86` / `112,77` |
-| **Random Forest** | `0,8662` | `0,8673` | `0,8684` | `0,8688` | `15,8426` / `2,2433` | `3758,16` / `1323,28` |
-| **Gradient Boosting** | `0,8594` | `0,8620` | `0,8810` | `0,8814` | `3,4175` / `3,9849` | `2247,42` / `949,67` |
-
-*(Catatan: Pada pengujian publikasi jurnal awal berbasis Medan Makna Unigram dengan korpus `152.793` artikel, model SVM mencapai akurasi `0,9047`, `Precision = 0,9054`, `Recall = 0,9047`, dan `F1-Score = 0,9049`.)*
+| **SVM (`LinearSVC C=10`)** | **`0,9061`** | **`0,9068`** | `0,9026` | `0,9027` | `2,0609` / `0,1099` | `2982,23` / `1107,53` |
+| **Logistic Regression** | `0,9027` | `0,9035` | **`0,9039`** | **`0,9041`** | `3,7081` / `0,1100` | `4013,31` / `946,28` |
+| **Naïve Bayes** | `0,8834` | `0,8835` | `0,8478` | `0,8487` | `2,6702` / `0,0852` | `3829,72` / `390,92` |
+| **Random Forest** | `0,8675` | `0,8686` | `0,8684` | `0,8688` | `142,1841` / `2,8103` | `3263,75` / `2184,48` |
+| **Gradient Boosting** | `0,8587` | `0,8623` | `0,8810` | `0,8814` | `4,7601` / `4,5862` | `2266,72` / `1701,52` |
 
 ### 2. Performa Per-Kategori Model Terbaik SVM (`LinearSVC C=10`, Semantik *Frame*)
 
 | Kategori | Precision | Recall | F1-Score | Support |
 |---|---:|---:|---:|---:|
 | `أمن` (Keamanan) | `0,9563` | `0,9475` | `0,9519` | `1.734` |
-| `اقتصاد` (Ekonomi) | `0,9297` | `0,9397` | `0,9347` | `1.591` |
-| `تكنولوجيا` (Teknologi) | `0,8951` | `0,9665` | `0,9294` | `1.104` |
+| `اقتصاد` (Ekonomi) | `0,9297` | `0,9396` | `0,9346` | `1.590` |
+| `تكنولوجيا` (Teknologi) | `0,8950` | `0,9665` | `0,9294` | `1.103` |
 | `ثقافة` (Budaya) | `0,9697` | `0,8848` | `0,9253` | `1.085` |
 | `دوليات` (Internasional) | `0,9075` | `0,8898` | `0,8986` | `1.797` |
 | `رياضة` (Olahraga) | `0,9861` | `0,9898` | **`0,9879`** | `1.861` |

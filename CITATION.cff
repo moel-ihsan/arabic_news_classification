@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+title: "Klasifikasi Artikel Berita Berbahasa Arab Berbasis Medan Makna dan Semantik Frame"
+message: "Apabila Anda menggunakan repositori ini dalam penelitian atau publikasi, mohon sitasi karya ilmiah berikut."
+type: software
+authors:
+  - given-names: "Maulana Ihsan"
+    family-names: "Ahmad"
+    email: "23201011009@student.uin-suka.ac.id"
+    affiliation: "Universitas Islam Negeri Sunan Kalijaga Yogyakarta"
+license: MIT
+keywords:
+  - arabic-nlp
+  - text-classification
+  - semantic-field
+  - frame-semantics
+  - svm
+  - tfidf
+  - streamlit
+references:
+  - type: article
+    title: "Computational linguistics and natural language processing techniques for semantic field extraction in Arabic online news"
+    authors:
+      - given-names: "Maulana Ihsan"
+        family-names: "Ahmad"
+      - given-names: "Moh. Kanif"
+        family-names: "Anwari"
+    journal: "Studies in English Language and Education"
+    volume: 11
+    issue: 3
+    start: 1686
+    end: 1709
+    year: 2024
+    doi: "10.24815/siele.v11i3.38090"
+    url: "https://doi.org/10.24815/siele.v11i3.38090"
+  - type: thesis
+    thesis-type: "Master's thesis"
+    title: "Komputasi Klasifikasi pada Berita Online Berbahasa Arab dengan Pendekatan Semantik Berbasis Frame"
+    authors:
+      - given-names: "Maulana Ihsan"
+        family-names: "Ahmad"
+    institution:
+      name: "Universitas Islam Negeri Sunan Kalijaga Yogyakarta"
+    year: 2024
+    url: "https://digilib.uin-suka.ac.id/id/eprint/75147/"
