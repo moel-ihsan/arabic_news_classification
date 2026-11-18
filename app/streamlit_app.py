@@ -410,7 +410,7 @@ def _inject_design_system_styles() -> None:
             margin: 0;
         }
 
-        /* Pill Tabs (menargetkan semantic role agar cocok lintas versi Streamlit) */
+        /* Pill Tabs (menargetkan semantic role tanpa menyembunyikan wrapper tab) */
         .stTabs [role="tablist"] {
             background-color: #FFFFFF !important;
             padding: 8px 10px !important;
@@ -419,6 +419,16 @@ def _inject_design_system_styles() -> None:
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
             gap: 8px !important;
             margin-bottom: 1.15rem !important;
+        }
+        .stTabs [role="tablist"] > div:not(:has(button[role="tab"])) {
+            display: none !important;
+            height: 0 !important;
+            background: transparent !important;
+        }
+        .stTabs [role="tablist"] > div:has(button[role="tab"]) {
+            display: inline-flex !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         .stTabs [role="tablist"] button[role="tab"] {
             border-radius: 9999px !important;
@@ -430,16 +440,12 @@ def _inject_design_system_styles() -> None:
             color: #475569 !important;
             background-color: transparent !important;
             border: none !important;
+            box-shadow: none !important;
         }
         .stTabs [role="tablist"] button[role="tab"][aria-selected="true"] {
             background-color: #111111 !important;
             color: #FFFFFF !important;
             border-radius: 9999px !important;
-        }
-        .stTabs [role="tablist"] > div {
-            display: none !important;
-            height: 0 !important;
-            background: transparent !important;
         }
 
         /* Compact Bento Metrics inside Prediction Columns */
