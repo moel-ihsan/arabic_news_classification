@@ -417,7 +417,7 @@ def _inject_design_system_styles() -> None:
             border-radius: 9999px !important;
             border: 1px solid #E2E8F0 !important;
             box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
-            gap: 8px !important;
+            gap: 6px !important;
             margin-bottom: 1.15rem !important;
         }
         .stTabs [role="tablist"] > div:not([role="tab"]):not(:has([role="tab"])) {
@@ -430,12 +430,15 @@ def _inject_design_system_styles() -> None:
             margin: 0 !important;
             padding: 0 !important;
         }
+        .stTabs [role="tablist"] .react-aria-SelectionIndicator {
+            display: none !important;
+        }
         .stTabs [role="tablist"] [role="tab"] {
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             border-radius: 9999px !important;
-            padding: 0.6rem 1.45rem !important;
+            padding: 0.6rem 1.2rem !important;
             min-height: 42px !important;
             height: auto !important;
             font-weight: 600 !important;
