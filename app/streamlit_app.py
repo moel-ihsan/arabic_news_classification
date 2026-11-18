@@ -412,30 +412,37 @@ def _inject_design_system_styles() -> None:
 
         /* Pill Tabs */
         .stTabs [data-baseweb="tab-list"] {
-            background-color: #FFFFFF;
-            padding: 7px 8px;
-            border-radius: 9999px;
-            border: 1px solid #E2E8F0;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+            background-color: #FFFFFF !important;
+            padding: 7px 10px !important;
+            border-radius: 9999px !important;
+            border: 1px solid #E2E8F0 !important;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
             gap: 8px !important;
-            margin-bottom: 1.15rem;
+            margin-bottom: 1.15rem !important;
         }
+        .stTabs [data-baseweb="tab-list"] button[role="tab"],
         .stTabs [data-baseweb="tab"] {
             border-radius: 9999px !important;
-            padding: 0.55rem 1.35rem !important;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #475569;
-            background-color: transparent;
-            border: none;
+            padding: 0.55rem 1.45rem !important;
+            min-height: 42px !important;
+            height: auto !important;
+            font-weight: 600 !important;
+            font-size: 0.9rem !important;
+            color: #475569 !important;
+            background-color: transparent !important;
+            border: none !important;
         }
+        .stTabs [data-baseweb="tab-list"] button[role="tab"][aria-selected="true"],
         .stTabs [aria-selected="true"] {
             background-color: #111111 !important;
             color: #FFFFFF !important;
             border-radius: 9999px !important;
         }
+        .stTabs [data-baseweb="tab-border"],
         .stTabs [data-baseweb="tab-highlight"] {
-            display: none;
+            display: none !important;
+            height: 0 !important;
+            background: transparent !important;
         }
 
         /* Compact Bento Metrics inside Prediction Columns */
