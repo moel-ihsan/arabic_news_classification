@@ -42,10 +42,27 @@ JOURNAL_DOI_URL = "https://doi.org/10.24815/siele.v11i3.38090"
 THESIS_REPO_URL = "https://digilib.uin-suka.ac.id/id/eprint/75147/"
 GITHUB_REPO_URL = "https://github.com/moel-ihsan/arabic_news_classification"
 
-INDIGO_PRIMARY = "#4F46E5"
-BLUE_ACCENT = "#2563EB"
-TEAL_SECONDARY = "#0D9488"
-INK_DARK = "#111111"
+INDIGO_PRIMARY = "#4B44F6"
+AZURE_ACCENT = "#4E8BFF"
+SLATE_MUTED = "#64748B"
+INK_DARK = "#0D0E12"
+
+
+def _apply_chart_theme(ax: Any, grid_axis: str = "x") -> None:
+    """Menyeragamkan gaya sumbu dan grid grafik agar selaras dengan palet Bento."""
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_color("#E6E8F0")
+    ax.spines["bottom"].set_color("#E6E8F0")
+    ax.spines["left"].set_linewidth(0.9)
+    ax.spines["bottom"].set_linewidth(0.9)
+    ax.tick_params(colors="#475569")
+    ax.title.set_color(INK_DARK)
+    ax.title.set_fontweight("bold")
+    ax.xaxis.label.set_color("#475569")
+    ax.yaxis.label.set_color("#475569")
+    ax.grid(axis=grid_axis, linestyle="--", linewidth=0.7, color="#CBD5E1", alpha=0.55)
+    ax.set_axisbelow(True)
 
 MODELS_EVAL_CONFIG = [
     ("SVC", "SVM", "svm.txt", "SVM"),
@@ -268,75 +285,175 @@ def _inject_design_system_styles() -> None:
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
+        @import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap');
 
-        html, body, [class*="css"] {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        :root {
+            --font: 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            --gdg-font-family: 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            --ink-dark: #0D0E12;
+            --ink-muted: #525866;
+            --surface-bg: #F6F7FB;
+            --surface-card: #FFFFFF;
+            --border-hairline: #E6E8F0;
+            --brand-indigo: #4B44F6;
+            --brand-azure: #4E8BFF;
         }
+
+        /* Sembunyikan Header, Toolbar, dan Dekorasi Bawaan Streamlit */
+        header[data-testid="stHeader"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        #MainMenu {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+        }
+
+        /* Tipografi Non-Arab: Satoshi / DM Sans (menimpa Source Sans bawaan Streamlit) */
+        html, body, .stApp, [data-testid="stAppViewContainer"],
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] li,
+        [data-testid="stMarkdownContainer"] h1,
+        [data-testid="stMarkdownContainer"] h2,
+        [data-testid="stMarkdownContainer"] h3,
+        [data-testid="stMarkdownContainer"] h4,
+        [data-testid="stMarkdownContainer"] h5,
+        [data-testid="stWidgetLabel"] p,
+        [data-testid="stCaptionContainer"] p,
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricLabel"],
+        [data-baseweb="select"],
+        [role="tab"], [role="tab"] p,
+        button, button p, input, label,
+        .top-nav, .hero-bento, .pred-card, .compare-grid, .method-band, .dark-footer {
+            font-family: 'Satoshi', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        }
+        [data-testid="stMarkdownContainer"] h1,
+        [data-testid="stMarkdownContainer"] h2,
+        [data-testid="stMarkdownContainer"] h3,
+        [data-testid="stMarkdownContainer"] h4,
+        [data-testid="stMarkdownContainer"] h5 {
+            color: var(--ink-dark);
+            font-weight: 700 !important;
+            letter-spacing: -0.025em !important;
+        }
+
         .stApp {
-            background-color: #F4F5FA;
-            color: #0F172A;
+            background-color: var(--surface-bg);
+            color: var(--ink-dark);
         }
         .block-container {
-            max-width: 1220px;
-            padding-top: 1.5rem;
+            max-width: 1180px;
+            padding-top: 1.05rem !important;
             padding-bottom: 2.5rem;
         }
 
-        /* Top Indigo Hero Card */
+        /* Minimalist Top Navbar (pengganti header bawaan & sidebar) */
+        .top-nav {
+            background: var(--surface-card);
+            border: 1px solid var(--border-hairline);
+            border-radius: 9999px;
+            padding: 0.55rem 0.7rem 0.55rem 1.25rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .top-nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 700;
+            font-size: 0.94rem;
+            letter-spacing: -0.02em;
+            color: var(--ink-dark);
+        }
+        .top-nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 9999px;
+            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
+            display: inline-block;
+        }
+        .top-nav-meta {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--ink-muted);
+        }
+        .top-nav-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .top-nav-link {
+            display: inline-block;
+            text-decoration: none !important;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--ink-dark) !important;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-hairline);
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            transition: background-color 0.15s ease;
+        }
+        .top-nav-link:hover {
+            background: #ECEEF6;
+        }
+        .top-nav-link.primary {
+            background: var(--ink-dark);
+            color: #FFFFFF !important;
+            border-color: var(--ink-dark);
+        }
+        .top-nav-link.primary:hover {
+            background: #27272A;
+        }
+
+        /* Top Royal Indigo -> Azure Hero Card */
         .hero-bento {
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 55%, #2563EB 100%);
+            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
             border-radius: 22px;
-            padding: 2rem 2.25rem;
+            padding: 2.15rem 2.35rem;
             color: #FFFFFF;
-            box-shadow: 0 18px 40px rgba(79, 70, 229, 0.22);
-            margin-bottom: 1.4rem;
+            margin-bottom: 1.25rem;
             display: grid;
-            grid-template-columns: 1.45fr 1fr;
-            gap: 1.75rem;
+            grid-template-columns: 1.38fr 1fr;
+            gap: 2rem;
             align-items: center;
         }
-        .hero-pill {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            color: #FFFFFF;
-            font-size: 0.74rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            padding: 0.32rem 0.8rem;
-            border-radius: 9999px;
-            margin-bottom: 0.85rem;
-        }
         .hero-title {
-            font-size: 2.05rem;
-            font-weight: 800;
-            line-height: 1.18;
-            letter-spacing: -0.025em;
-            margin: 0 0 0.7rem 0;
-            color: #FFFFFF;
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1.12;
+            letter-spacing: -0.034em;
+            margin: 0 0 0.8rem 0;
+            color: #FFFFFF !important;
         }
         .hero-subtitle {
             font-size: 0.98rem;
-            line-height: 1.55;
+            font-weight: 400;
+            line-height: 1.58;
             color: rgba(255, 255, 255, 0.90);
             margin: 0;
+            max-width: 54ch;
         }
         .hero-widget {
             background: #FFFFFF;
             border-radius: 18px;
-            padding: 1.05rem;
-            color: #0F172A;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+            padding: 1.1rem;
+            color: var(--ink-dark);
+            box-shadow: 0 18px 42px rgba(13, 14, 18, 0.18);
         }
         .hero-widget-label {
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748B;
-            margin-bottom: 0.7rem;
+            letter-spacing: 0.06em;
+            color: var(--ink-muted);
+            margin-bottom: 0.72rem;
         }
         .hero-tiles {
             display: grid;
@@ -344,81 +461,80 @@ def _inject_design_system_styles() -> None:
             gap: 0.6rem;
         }
         .hero-tile {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
+            background: var(--surface-bg);
+            border: 1px solid var(--border-hairline);
             border-radius: 13px;
-            padding: 0.7rem 0.8rem;
+            padding: 0.78rem 0.88rem;
         }
         .hero-tile.active {
-            background: #111111;
-            border-color: #111111;
+            background: var(--ink-dark);
+            border-color: var(--ink-dark);
             color: #FFFFFF;
         }
         .hero-tile-val {
-            font-size: 1.25rem;
-            font-weight: 800;
+            font-size: 1.3rem;
+            font-weight: 700;
             line-height: 1.15;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.025em;
+            font-variant-numeric: tabular-nums;
         }
         .hero-tile-cap {
-            font-size: 0.74rem;
-            color: #64748B;
-            margin-top: 0.2rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--ink-muted);
+            margin-top: 0.22rem;
+            font-weight: 500;
         }
         .hero-tile.active .hero-tile-cap {
             color: rgba(255, 255, 255, 0.78);
         }
 
-        /* 3-Step Bento Strip */
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.9rem;
-            margin-bottom: 1.35rem;
+        /* Compact Inline Workflow Strip above Input */
+        .flow-strip {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1.4rem;
+            background: var(--surface-card);
+            border: 1px solid var(--border-hairline);
+            border-radius: 14px;
+            padding: 0.68rem 1.05rem;
+            margin-bottom: 0.9rem;
         }
-        .step-card {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 16px;
-            padding: 1.05rem 1.15rem;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        .flow-step {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--ink-muted);
         }
-        .step-badge {
+        .flow-num {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 9px;
-            background: #111111;
+            width: 22px;
+            height: 22px;
+            border-radius: 7px;
+            background: var(--ink-dark);
             color: #FFFFFF;
-            font-size: 0.78rem;
+            font-size: 0.72rem;
             font-weight: 700;
-            margin-bottom: 0.55rem;
+            font-variant-numeric: tabular-nums;
         }
-        .step-title {
-            font-size: 0.95rem;
+        .flow-step strong {
+            color: var(--ink-dark);
             font-weight: 700;
-            color: #0F172A;
-            margin-bottom: 0.25rem;
-        }
-        .step-desc {
-            font-size: 0.83rem;
-            line-height: 1.45;
-            color: #475569;
-            margin: 0;
         }
 
-        /* Pill Tabs (menargetkan semantic [role="tab"] tanpa menyembunyikan tab itu sendiri) */
+        /* Pill Tabs (cocok dengan div[role="tab"] Streamlit 1.50) */
         .stTabs [role="tablist"] {
-            background-color: #FFFFFF !important;
-            padding: 8px 10px !important;
+            background-color: var(--surface-card) !important;
+            padding: 7px 9px !important;
             border-radius: 9999px !important;
-            border: 1px solid #E2E8F0 !important;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+            border: 1px solid var(--border-hairline) !important;
+            box-shadow: none !important;
             gap: 6px !important;
-            margin-bottom: 1.15rem !important;
+            margin-bottom: 1.05rem !important;
         }
         .stTabs [role="tablist"] > div:not([role="tab"]):not(:has([role="tab"])) {
             display: none !important;
@@ -438,12 +554,12 @@ def _inject_design_system_styles() -> None:
             align-items: center !important;
             justify-content: center !important;
             border-radius: 9999px !important;
-            padding: 0.6rem 1.2rem !important;
-            min-height: 42px !important;
+            padding: 0.56rem 1.18rem !important;
+            min-height: 40px !important;
             height: auto !important;
             font-weight: 600 !important;
-            font-size: 0.9rem !important;
-            color: #475569 !important;
+            font-size: 0.89rem !important;
+            color: var(--ink-muted) !important;
             background-color: transparent !important;
             border: none !important;
             box-shadow: none !important;
@@ -453,7 +569,7 @@ def _inject_design_system_styles() -> None:
             font-weight: 600 !important;
         }
         .stTabs [role="tablist"] [role="tab"][aria-selected="true"] {
-            background-color: #111111 !important;
+            background-color: var(--ink-dark) !important;
             color: #FFFFFF !important;
             border-radius: 9999px !important;
         }
@@ -461,66 +577,146 @@ def _inject_design_system_styles() -> None:
             color: #FFFFFF !important;
         }
 
-        /* Compact Bento Metrics inside Prediction Columns */
-        .pred-metrics-grid {
+        /* Unified Bento Prediction Cards (menggantikan alert bawaan + chip terpisah) */
+        .pred-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-hairline);
+            border-radius: 18px;
+            padding: 1.15rem 1.25rem;
+            margin-top: 0.35rem;
+            margin-bottom: 1.1rem;
+        }
+        .pred-card.frame {
+            background: linear-gradient(180deg, #F8F8FF 0%, #FFFFFF 48%);
+            border-color: #DCD9FE;
+        }
+        .pred-card.medan {
+            background: linear-gradient(180deg, #F5F9FF 0%, #FFFFFF 48%);
+            border-color: #D7E6FE;
+        }
+        .pred-card.uncat {
+            background: #FFFBEB;
+            border-color: #FDE68A;
+        }
+        .pred-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            margin-bottom: 0.55rem;
+        }
+        .pred-scheme-tag {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.22rem 0.65rem;
+            border-radius: 9999px;
+        }
+        .pred-card.frame .pred-scheme-tag {
+            background: #ECEBFF;
+            color: #3730A3;
+        }
+        .pred-card.medan .pred-scheme-tag {
+            background: #E7F0FF;
+            color: #1D4ED8;
+        }
+        .pred-card.uncat .pred-scheme-tag {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .pred-cat-ar {
+            font-family: var(--font-arabic) !important;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--ink-dark);
+            direction: rtl;
+        }
+        .pred-cat-main {
+            font-size: 1.32rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--ink-dark);
+            margin-bottom: 0.85rem;
+            line-height: 1.25;
+        }
+        .pred-cat-en {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--ink-muted);
+        }
+        .pred-stats-row {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 0.55rem;
-            margin-top: 0.45rem;
-            margin-bottom: 0.9rem;
+            padding-top: 0.78rem;
+            border-top: 1px solid var(--border-hairline);
         }
-        .pred-metric-chip {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 14px;
-            padding: 0.7rem 0.85rem;
-            box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
-        }
-        .pred-metric-label {
+        .pred-stat-label {
             font-size: 0.74rem;
-            font-weight: 600;
-            color: #64748B;
-            margin-bottom: 0.2rem;
+            font-weight: 500;
+            color: var(--ink-muted);
+            margin-bottom: 0.16rem;
             white-space: nowrap;
         }
-        .pred-metric-val {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: #0F172A;
+        .pred-stat-val {
+            font-size: 1.16rem;
+            font-weight: 700;
+            color: var(--ink-dark);
             line-height: 1.2;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Clean Streamlit Input Container */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: var(--surface-card) !important;
+            border: 1px solid var(--border-hairline) !important;
+            border-radius: 18px !important;
+            box-shadow: none !important;
         }
 
         /* Elevated Pill CTA Buttons */
         .stButton > button {
             border-radius: 9999px !important;
             font-weight: 600 !important;
-            padding: 0.55rem 1.35rem !important;
-            transition: transform 0.12s ease, box-shadow 0.12s ease !important;
+            padding: 0.58rem 1.35rem !important;
+            transition: background-color 0.15s ease, transform 0.12s ease !important;
         }
         .stButton > button[kind="primary"] {
-            background-color: #111111 !important;
-            border-color: #111111 !important;
+            background-color: var(--ink-dark) !important;
+            border-color: var(--ink-dark) !important;
             color: #FFFFFF !important;
-            box-shadow: 0 6px 16px rgba(17, 17, 17, 0.18) !important;
+        }
+        .stButton > button[kind="primary"] p {
+            color: #FFFFFF !important;
         }
         .stButton > button[kind="primary"]:hover {
-            background-color: #312E81 !important;
-            border-color: #312E81 !important;
+            background-color: #4B44F6 !important;
+            border-color: #4B44F6 !important;
             transform: translateY(-1px);
         }
         .stButton > button[kind="secondary"] {
-            background-color: #FFFFFF !important;
-            border: 1px solid #CBD5E1 !important;
-            color: #0F172A !important;
+            background-color: var(--surface-card) !important;
+            border: 1px solid var(--border-hairline) !important;
+            color: var(--ink-dark) !important;
+        }
+        .stButton > button[kind="secondary"]:hover {
+            background-color: var(--surface-bg) !important;
         }
 
-        /* Elevated Metric Cards */
+        /* Flat Hairline Metric Cards */
         [data-testid="stMetric"] {
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            background-color: var(--surface-card);
+            border: 1px solid var(--border-hairline);
             border-radius: 16px;
             padding: 0.85rem 1rem;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            box-shadow: none;
+        }
+        [data-testid="stMetricValue"] {
+            font-variant-numeric: tabular-nums;
+            font-weight: 700 !important;
+            letter-spacing: -0.025em !important;
         }
 
         /* Side-by-Side Comparison Bento Cards */
@@ -528,22 +724,20 @@ def _inject_design_system_styles() -> None:
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            margin: 0.6rem 0 1.4rem 0;
+            margin: 0.6rem 0 1.35rem 0;
         }
         .compare-card-muted {
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 20px;
+            background: var(--surface-card);
+            border: 1px solid var(--border-hairline);
+            border-radius: 18px;
             padding: 1.35rem 1.5rem;
-            color: #1E293B;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+            color: var(--ink-dark);
         }
         .compare-card-highlight {
-            background: linear-gradient(135deg, #4F46E5 0%, #2563EB 100%);
-            border-radius: 20px;
+            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
+            border-radius: 18px;
             padding: 1.35rem 1.5rem;
             color: #FFFFFF;
-            box-shadow: 0 14px 30px rgba(79, 70, 229, 0.22);
         }
         .compare-tag {
             display: inline-block;
@@ -556,8 +750,8 @@ def _inject_design_system_styles() -> None:
             margin-bottom: 0.55rem;
         }
         .compare-card-muted .compare-tag {
-            background: #F1F5F9;
-            color: #475569;
+            background: var(--surface-bg);
+            color: var(--ink-muted);
         }
         .compare-card-highlight .compare-tag {
             background: rgba(255, 255, 255, 0.2);
@@ -569,7 +763,7 @@ def _inject_design_system_styles() -> None:
             margin: 0.75rem 0 0 0;
         }
         .compare-list li {
-            padding: 0.42rem 0;
+            padding: 0.44rem 0;
             font-size: 0.9rem;
             border-bottom: 1px dashed rgba(148, 163, 184, 0.28);
         }
@@ -577,9 +771,9 @@ def _inject_design_system_styles() -> None:
             border-bottom: none;
         }
 
-        /* 2-Col FAQ / Methodology Cards */
+        /* 2-Col Methodology Cards */
         .method-band {
-            background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+            background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
             border-radius: 22px;
             padding: 1.75rem;
             color: #FFFFFF;
@@ -594,70 +788,73 @@ def _inject_design_system_styles() -> None:
         .method-card {
             background: #FFFFFF;
             border-radius: 16px;
-            padding: 1.15rem 1.25rem;
-            color: #0F172A;
+            padding: 1.2rem 1.3rem;
+            color: var(--ink-dark);
             position: relative;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
         }
         .method-badge {
             position: absolute;
-            top: 0.95rem;
+            top: 1rem;
             right: 1rem;
-            background: #111111;
+            background: var(--ink-dark);
             color: #FFFFFF;
             font-size: 0.72rem;
             font-weight: 700;
             padding: 0.22rem 0.55rem;
             border-radius: 8px;
+            font-variant-numeric: tabular-nums;
         }
         .method-card h4 {
             margin: 0 2.8rem 0.45rem 0;
             font-size: 0.98rem;
             font-weight: 700;
-            color: #0F172A;
+            letter-spacing: -0.02em;
+            color: var(--ink-dark);
         }
         .method-card p {
             margin: 0;
             font-size: 0.86rem;
             line-height: 1.55;
-            color: #475569;
+            color: var(--ink-muted);
         }
 
-        /* Arabic RTL Containers */
+        /* Arabic RTL Containers (dilindungi dari override font Latin) */
+        .arabic-rtl-box, .arabic-rtl-box * {
+            font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Arial', sans-serif !important;
+        }
         .arabic-rtl-box {
             direction: rtl;
             text-align: right;
             unicode-bidi: plaintext;
-            font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Arial', sans-serif;
-            font-size: 1.16rem;
+            font-size: 1.18rem;
             line-height: 2.05;
-            background-color: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-right: 5px solid #4F46E5;
+            background-color: var(--surface-card);
+            border: 1px solid var(--border-hairline);
             border-radius: 16px;
             padding: 1.15rem 1.4rem;
-            color: #0F172A;
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+            color: var(--ink-dark);
+        }
+        .arabic-clean-box, .arabic-clean-box * {
+            font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Arial', sans-serif !important;
         }
         .arabic-clean-box {
             direction: rtl;
             text-align: right;
             unicode-bidi: plaintext;
-            font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Arial', sans-serif;
-            font-size: 1.02rem;
+            font-size: 1.04rem;
             line-height: 1.85;
-            background-color: #F8FAFC;
-            border: 1px solid #E2E8F0;
+            background-color: var(--surface-bg);
+            border: 1px solid var(--border-hairline);
             border-radius: 12px;
             padding: 0.85rem 1.05rem;
-            color: #1E293B;
+            color: var(--ink-dark);
         }
         .ar-pos {
             background-color: #DCFCE7;
             color: #166534;
             padding: 0.08rem 0.38rem;
             border-radius: 6px;
-            font-weight: 600;
+            font-weight: 700;
         }
         .ar-neg {
             background-color: #FEE2E2;
@@ -670,19 +867,19 @@ def _inject_design_system_styles() -> None:
             text-align: right !important;
             unicode-bidi: plaintext !important;
             font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Arial', sans-serif !important;
-            font-size: 1.1rem !important;
-            line-height: 1.8 !important;
-            background-color: #FFFFFF !important;
+            font-size: 1.12rem !important;
+            line-height: 1.85 !important;
+            background-color: var(--surface-card) !important;
             border-radius: 14px !important;
         }
 
-        /* Dark Showcase Footer */
+        /* Obsidian Showcase Footer */
         .dark-footer {
-            background: #111318;
+            background: #0C0D10;
             color: #F8FAFC;
             border-radius: 22px;
             padding: 1.75rem 2rem;
-            margin-top: 2.2rem;
+            margin-top: 2rem;
             display: grid;
             grid-template-columns: 1.3fr 1fr;
             gap: 1.5rem;
@@ -691,8 +888,9 @@ def _inject_design_system_styles() -> None:
         .dark-footer h3 {
             margin: 0 0 0.45rem 0;
             font-size: 1.25rem;
-            font-weight: 800;
-            color: #FFFFFF;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: #FFFFFF !important;
         }
         .dark-footer p {
             margin: 0;
@@ -709,21 +907,29 @@ def _inject_design_system_styles() -> None:
         .footer-btn {
             display: inline-block;
             background: #FFFFFF;
-            color: #111111 !important;
+            color: #0D0E12 !important;
             text-decoration: none !important;
             font-weight: 700;
             font-size: 0.82rem;
-            padding: 0.5rem 1rem;
+            padding: 0.52rem 1.05rem;
             border-radius: 9999px;
         }
         .footer-btn.outline {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: #FFFFFF !important;
-            border: 1px solid rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.20);
         }
 
         @media (max-width: 860px) {
-            .hero-bento, .steps-grid, .compare-grid, .method-grid, .dark-footer {
+            .top-nav {
+                border-radius: 18px;
+                flex-wrap: wrap;
+                padding: 0.75rem 1rem;
+            }
+            .top-nav-meta {
+                display: none;
+            }
+            .hero-bento, .compare-grid, .method-grid, .dark-footer {
                 grid-template-columns: 1fr;
             }
             .footer-links {
@@ -731,6 +937,26 @@ def _inject_design_system_styles() -> None:
             }
         }
         </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_top_navbar() -> None:
+    st.markdown(
+        f"""
+        <div class="top-nav">
+            <div class="top-nav-brand">
+                <span class="top-nav-dot"></span>
+                <span>Arabic News Semantics</span>
+            </div>
+            <div class="top-nav-meta">11 Kategori Berita &middot; 6 Portal Timur Tengah &amp; Afrika Utara</div>
+            <div class="top-nav-actions">
+                <a class="top-nav-link" href="{JOURNAL_DOI_URL}" target="_blank" rel="noopener">Jurnal SiELE</a>
+                <a class="top-nav-link" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis UIN</a>
+                <a class="top-nav-link primary" href="{GITHUB_REPO_URL}" target="_blank" rel="noopener">GitHub</a>
+            </div>
+        </div>
         """,
         unsafe_allow_html=True,
     )
@@ -749,11 +975,10 @@ def _render_hero_banner(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any
         f"""
         <div class="hero-bento">
             <div>
-                <div class="hero-pill">Arabic NLP Research · 11 Kategori Berita</div>
-                <h1 class="hero-title">Klasifikasi Berita Arab Berbasis Medan Makna &amp; Semantik <em>Frame</em></h1>
+                <h1 class="hero-title">Klasifikasi Berita Arab Berbasis Medan Makna &amp; Semantik Frame</h1>
                 <p class="hero-subtitle">
-                    Demo interaktif klasifikasi artikel berita berbahasa Arab, ekstraksi kata inti Medan Makna
-                    dan frasa kontekstual Semantik <em>Frame</em>, bobot kontribusi fitur, serta evaluasi 5 model pembelajaran mesin.
+                    Klasifikasi artikel berita berbahasa Arab ke dalam 11 kategori tematik dengan ekstraksi kata inti
+                    Medan Makna, frasa kontekstual Semantik Frame, koefisien SVM, serta evaluasi 5 model pembelajaran mesin.
                 </p>
             </div>
             <div class="hero-widget">
@@ -781,34 +1006,6 @@ def _render_hero_banner(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any
         """,
         unsafe_allow_html=True,
     )
-
-
-def _render_sidebar(corpus_stats: Dict[str, Any], eval_tables: Dict[str, Any]) -> None:
-    svm_f = eval_tables.get("svm_frame_detail")
-    svm_m = eval_tables.get("svm_medan_detail")
-    total_valid = corpus_stats.get("total_valid_articles")
-
-    with st.sidebar:
-        st.header("Tentang Penelitian")
-        st.markdown(
-            """
-            Sistem klasifikasi artikel berita berbahasa Arab berbasis **Medan Makna (*Semantic Field*)**
-            dan **Semantik *Frame* (*Frame Semantics*)**.
-            """
-        )
-        st.metric("Total Artikel Valid Korpus", f"{total_valid:,}" if total_valid else "Belum dihitung (NB 01/03)")
-        st.metric("Akurasi Semantik Frame", f"{svm_f['accuracy'] * 100:.2f}%" if svm_f else "Belum dilatih (NB 04)")
-        st.metric("Akurasi Medan Makna", f"{svm_m['accuracy'] * 100:.2f}%" if svm_m else "Belum dilatih (NB 04)")
-
-        st.divider()
-        st.subheader("Publikasi Ilmiah")
-        st.markdown(
-            f"""
-            - **Artikel Jurnal (Medan Makna)**: *Studies in English Language and Education*, 11(3), 1686–1709 (2024) — [DOI: 10.24815/siele.v11i3.38090]({JOURNAL_DOI_URL})
-            - **Tesis Magister (Semantik *Frame*)**: UIN Sunan Kalijaga Yogyakarta (2024) — [Repositori UIN]({THESIS_REPO_URL})
-            """
-        )
-        st.caption("11 Kategori | 6 Portal Berita Timur Tengah & Afrika Utara")
 
 
 def _render_footer() -> None:
@@ -841,22 +1038,10 @@ def _render_classification_tab(
 ) -> None:
     st.markdown(
         """
-        <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-badge">01</div>
-                <div class="step-title">Masukkan Artikel Arab</div>
-                <p class="step-desc">Tulis atau tempel berita Arab secara mandiri, atau pilih contoh berita dari 11 kategori.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-badge">02</div>
-                <div class="step-title">Ekstraksi Ganda</div>
-                <p class="step-desc">Sistem menyaring kata kunci Medan Makna dan frasa kontekstual Semantik <em>Frame</em> sekaligus.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-badge">03</div>
-                <div class="step-title">Skor &amp; Interpretasi</div>
-                <p class="step-desc">Lihat keyakinan prediksi lintas 11 kategori beserta sorotan kata pendorong (+) dan penekan (-).</p>
-            </div>
+        <div class="flow-strip">
+            <span class="flow-step"><span class="flow-num">1</span> <strong>Input Berita Arab</strong> — Tulis, tempel, atau pilih contoh 11 kategori</span>
+            <span class="flow-step"><span class="flow-num">2</span> <strong>Ekstraksi Ganda</strong> — Medan Makna &amp; Semantik Frame</span>
+            <span class="flow-step"><span class="flow-num">3</span> <strong>Skor &amp; Bobot</strong> — Sigmoid 11 kelas &amp; koefisien fitur</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -978,59 +1163,42 @@ def _render_classification_tab(
             "yang dikenali oleh kedua model (0 fitur aktif)."
         )
 
-    def _pred_metrics_html(sig_val: str, count_label: str, count_val: str, tfidf_val: str) -> str:
-        return (
-            '<div class="pred-metrics-grid">'
-            f'<div class="pred-metric-chip"><div class="pred-metric-label">Skor Sigmoid</div><div class="pred-metric-val">{sig_val}</div></div>'
-            f'<div class="pred-metric-chip"><div class="pred-metric-label">{count_label}</div><div class="pred-metric-val">{count_val}</div></div>'
-            f'<div class="pred-metric-chip"><div class="pred-metric-label">Bobot TF-IDF</div><div class="pred-metric-val">{tfidf_val}</div></div>'
-            "</div>"
+    def _render_prediction_card(variant: str, scheme_title: str, count_label: str, res_obj: Dict[str, Any]) -> None:
+        if res_obj.get("is_uncategorized"):
+            card_html = (
+                f'<div class="pred-card uncat">'
+                f'<div class="pred-card-head"><span class="pred-scheme-tag">{html.escape(scheme_title)}</span>'
+                f'<span class="pred-cat-ar">غير مصنف</span></div>'
+                f'<div class="pred-cat-main">Tidak Terkategori <span class="pred-cat-en">(Uncategorized)</span></div>'
+                f'<div class="pred-stats-row">'
+                f'<div><div class="pred-stat-label">Skor Sigmoid</div><div class="pred-stat-val">—</div></div>'
+                f'<div><div class="pred-stat-label">{html.escape(count_label)}</div><div class="pred-stat-val">0</div></div>'
+                f'<div><div class="pred-stat-label">Bobot TF-IDF</div><div class="pred-stat-val">0.0000</div></div>'
+                f"</div></div>"
+            )
+            st.markdown(card_html, unsafe_allow_html=True)
+            return
+
+        top_prob = res_obj["category_scores"][0]["sigmoid_percent"]
+        card_html = (
+            f'<div class="pred-card {variant}">'
+            f'<div class="pred-card-head"><span class="pred-scheme-tag">{html.escape(scheme_title)}</span>'
+            f'<span class="pred-cat-ar">{html.escape(str(res_obj["predicted_category"]))}</span></div>'
+            f'<div class="pred-cat-main">{html.escape(str(res_obj["predicted_category_id"]))} '
+            f'<span class="pred-cat-en">({html.escape(str(res_obj["predicted_category_en"]))})</span></div>'
+            f'<div class="pred-stats-row">'
+            f'<div><div class="pred-stat-label">Skor Sigmoid</div><div class="pred-stat-val">{top_prob:.2f}%</div></div>'
+            f'<div><div class="pred-stat-label">{html.escape(count_label)}</div><div class="pred-stat-val">{res_obj["n_active_features"]}</div></div>'
+            f'<div><div class="pred-stat-label">Bobot TF-IDF</div><div class="pred-stat-val">{res_obj["total_tfidf_weight"]:.4f}</div></div>'
+            f"</div></div>"
         )
+        st.markdown(card_html, unsafe_allow_html=True)
 
     c1, c2 = st.columns(2)
     with c1:
-        if frame_res.get("is_uncategorized"):
-            st.warning(
-                "**Prediksi Semantik Frame**: `غير مصنف` — **Tidak Terkategori** *(Uncategorized — 0 frasa aktif)*"
-            )
-            st.markdown(_pred_metrics_html("—", "Frasa Aktif", "0", "0.0000"), unsafe_allow_html=True)
-        else:
-            top_prob_f = frame_res["category_scores"][0]["sigmoid_percent"]
-            st.success(
-                f"**Prediksi Semantik Frame**: `{frame_res['predicted_category']}` "
-                f"— **{frame_res['predicted_category_id']}** ({frame_res['predicted_category_en']})"
-            )
-            st.markdown(
-                _pred_metrics_html(
-                    f"{top_prob_f:.2f}%",
-                    "Frasa Aktif",
-                    f"{frame_res['n_active_features']}",
-                    f"{frame_res['total_tfidf_weight']:.4f}",
-                ),
-                unsafe_allow_html=True,
-            )
-
+        _render_prediction_card("frame", "Semantik Frame", "Frasa Aktif", frame_res)
     with c2:
-        if medan_res.get("is_uncategorized"):
-            st.warning(
-                "**Prediksi Medan Makna**: `غير مصنف` — **Tidak Terkategori** *(Uncategorized — 0 kata aktif)*"
-            )
-            st.markdown(_pred_metrics_html("—", "Kata Aktif", "0", "0.0000"), unsafe_allow_html=True)
-        else:
-            top_prob_m = medan_res["category_scores"][0]["sigmoid_percent"]
-            st.info(
-                f"**Prediksi Medan Makna**: `{medan_res['predicted_category']}` "
-                f"— **{medan_res['predicted_category_id']}** ({medan_res['predicted_category_en']})"
-            )
-            st.markdown(
-                _pred_metrics_html(
-                    f"{top_prob_m:.2f}%",
-                    "Kata Aktif",
-                    f"{medan_res['n_active_features']}",
-                    f"{medan_res['total_tfidf_weight']:.4f}",
-                ),
-                unsafe_allow_html=True,
-            )
+        _render_prediction_card("medan", "Medan Makna", "Kata Aktif", medan_res)
 
     if both_uncat:
         return
@@ -1065,7 +1233,7 @@ def _render_classification_tab(
     score_col1, score_col2 = st.columns(2)
     for col_box, title_txt, res_obj, bar_color in [
         (score_col1, "Semantik Frame", frame_res, INDIGO_PRIMARY),
-        (score_col2, "Medan Makna", medan_res, TEAL_SECONDARY),
+        (score_col2, "Medan Makna", medan_res, AZURE_ACCENT),
     ]:
         with col_box:
             if res_obj.get("is_uncategorized"):
@@ -1075,7 +1243,7 @@ def _render_classification_tab(
             scores_sorted = scores_df.sort_values("sigmoid_percent", ascending=True)
             fig, ax = plt.subplots(figsize=(7.6, 5.0))
             ylabels = [reshape_arabic_for_plot(r["category"]) for _, r in scores_sorted.iterrows()]
-            bars = ax.barh(ylabels, scores_sorted["sigmoid_percent"], color=bar_color, height=0.68)
+            bars = ax.barh(ylabels, scores_sorted["sigmoid_percent"], color=bar_color, height=0.66)
             for bar, val in zip(bars, scores_sorted["sigmoid_percent"]):
                 ax.text(
                     min(float(val) + 1.5, 102.0),
@@ -1083,13 +1251,13 @@ def _render_classification_tab(
                     f"{val:.1f}%",
                     va="center",
                     fontsize=8.5,
-                    color="#1e293b",
+                    color=INK_DARK,
                 )
             ax.set_xlim(0, 118)
             ax.set_xlabel("Skor Sigmoid (%)", fontsize=10)
             ax.set_title(title_txt, fontsize=11, pad=10)
             ax.tick_params(axis="y", labelsize=9.5)
-            ax.grid(axis="x", linestyle="--", alpha=0.3)
+            _apply_chart_theme(ax, grid_axis="x")
             if font_prop:
                 for lbl in ax.get_yticklabels():
                     lbl.set_fontproperties(font_prop)
@@ -1131,14 +1299,14 @@ def _render_classification_tab(
                 ax_m.barh(
                     [reshape_arabic_for_plot(t) for t in plot_m["Kata Medan Makna"]],
                     plot_m["Koefisien Model"],
-                    color=["#16a34a" if v > 0 else "#dc2626" for v in plot_m["Koefisien Model"]],
-                    height=0.68,
+                    color=["#16A34A" if v > 0 else "#DC2626" for v in plot_m["Koefisien Model"]],
+                    height=0.66,
                 )
-                ax_m.axvline(0, color="black", linewidth=0.8)
+                ax_m.axvline(0, color=INK_DARK, linewidth=0.9)
                 ax_m.set_title(f"Top {len(plot_m)} Koefisien Medan Makna (+/-)", fontsize=11, pad=10)
                 ax_m.set_xlabel("Koefisien Hyperplane", fontsize=10)
                 ax_m.tick_params(axis="y", labelsize=9.5)
-                ax_m.grid(axis="x", linestyle="--", alpha=0.3)
+                _apply_chart_theme(ax_m, grid_axis="x")
                 if font_prop:
                     for lbl in ax_m.get_yticklabels():
                         lbl.set_fontproperties(font_prop)
@@ -1183,14 +1351,14 @@ def _render_classification_tab(
                     [reshape_arabic_for_plot(t) for t in frame_top["Frasa Semantik Frame"]],
                     frame_top["Bobot TF-IDF"],
                     color=INDIGO_PRIMARY,
-                    height=0.68,
+                    height=0.66,
                 )
                 max_w = float(frame_top["Bobot TF-IDF"].max()) if len(frame_top) else 1.0
                 ax_f.set_xlim(0, max_w * 1.15)
                 ax_f.set_title(f"Top {len(frame_top)} Frasa Semantik Frame (Bobot TF-IDF)", fontsize=11, pad=10)
                 ax_f.set_xlabel("Bobot TF-IDF", fontsize=10)
                 ax_f.tick_params(axis="y", labelsize=9.5)
-                ax_f.grid(axis="x", linestyle="--", alpha=0.3)
+                _apply_chart_theme(ax_f, grid_axis="x")
                 if font_prop:
                     for lbl in ax_f.get_yticklabels():
                         lbl.set_fontproperties(font_prop)
@@ -1241,7 +1409,7 @@ def _render_corpus_and_lexicons_tab(
             labels_cat = [reshape_arabic_for_plot(c) for c in cat_df["Kategori"].tolist()[::-1]]
             trans_cat = cat_df["Terjemahan"].tolist()[::-1]
             vals_cat = cat_df["Artikel Valid"].tolist()[::-1]
-            bars_cat = ax_cat.barh(labels_cat, vals_cat, color=INDIGO_PRIMARY, height=0.68)
+            bars_cat = ax_cat.barh(labels_cat, vals_cat, color=INDIGO_PRIMARY, height=0.66)
             max_cat = max(vals_cat) if vals_cat else 1
             for bar, val, trans in zip(bars_cat, vals_cat, trans_cat):
                 ax_cat.text(
@@ -1250,13 +1418,13 @@ def _render_corpus_and_lexicons_tab(
                     f"{trans} ({val:,})",
                     va="center",
                     fontsize=8.5,
-                    color="#1e293b",
+                    color=INK_DARK,
                 )
             ax_cat.set_xlim(0, max_cat * 1.48)
             ax_cat.set_title("Distribusi Artikel pada 11 Kategori", fontsize=11.5, pad=10)
             ax_cat.set_xlabel("Jumlah Artikel Valid", fontsize=10)
             ax_cat.tick_params(axis="y", labelsize=10)
-            ax_cat.grid(axis="x", linestyle="--", alpha=0.3)
+            _apply_chart_theme(ax_cat, grid_axis="x")
             if font_prop:
                 for lbl in ax_cat.get_yticklabels():
                     lbl.set_fontproperties(font_prop)
@@ -1267,7 +1435,7 @@ def _render_corpus_and_lexicons_tab(
         with col_c2:
             fig_src, ax_src = plt.subplots(figsize=(8.2, 5.4))
             total_src = float(src_df["Jumlah Artikel"].sum()) or 1.0
-            palette = ["#4F46E5", "#2563EB", "#0D9488", "#0EA5E9", "#6366F1", "#14B8A6"]
+            palette = ["#4B44F6", "#4E8BFF", "#818CF8", "#0D0E12", "#64748B", "#93C5FD"]
             wedges, _, _ = ax_src.pie(
                 src_df["Jumlah Artikel"],
                 labels=None,
@@ -1275,7 +1443,7 @@ def _render_corpus_and_lexicons_tab(
                 pctdistance=0.76,
                 startangle=140,
                 colors=palette[: len(src_df)],
-                wedgeprops={"width": 0.48, "edgecolor": "white", "linewidth": 1.5},
+                wedgeprops={"width": 0.48, "edgecolor": "white", "linewidth": 1.8},
                 textprops={"color": "#FFFFFF", "fontweight": "bold", "fontsize": 8.5},
             )
             legend_labels = [
@@ -1363,22 +1531,22 @@ def _render_evaluation_tab(
         <div class="compare-grid">
             <div class="compare-card-muted">
                 <span class="compare-tag">Baseline Leksikal</span>
-                <h4 style="margin:0 0 0.2rem 0; font-size:1.1rem; font-weight:800;">Medan Makna (Tanpa Semantik <em>Frame</em>)</h4>
+                <h4 style="margin:0 0 0.2rem 0; font-size:1.12rem; font-weight:700; letter-spacing:-0.025em;">Medan Makna (Tanpa Semantik Frame)</h4>
                 <ul class="compare-list">
-                    <li>• Representasi kata leksikal inti (penghapusan kata henti)</li>
-                    <li>• Pembagian data 80% Latih / 15% Validasi (N={svm_medan['support']:,}) / 5% Uji</li>
-                    <li>• Akurasi SVM: <strong>{svm_medan['accuracy'] * 100:.2f}%</strong></li>
-                    <li>• Kebutuhan memori sangat ringan dan inferensi cepat</li>
+                    <li>&bull; Representasi kata leksikal inti (penghapusan kata henti)</li>
+                    <li>&bull; Pembagian data 80% Latih / 15% Validasi (N={svm_medan['support']:,}) / 5% Uji</li>
+                    <li>&bull; Akurasi SVM: <strong>{svm_medan['accuracy'] * 100:.2f}%</strong></li>
+                    <li>&bull; Kebutuhan memori sangat ringan dan inferensi cepat</li>
                 </ul>
             </div>
             <div class="compare-card-highlight">
                 <span class="compare-tag">Pendekatan Unggulan</span>
-                <h4 style="margin:0 0 0.2rem 0; font-size:1.1rem; font-weight:800; color:#FFFFFF;">Dengan Semantik <em>Frame</em></h4>
+                <h4 style="margin:0 0 0.2rem 0; font-size:1.12rem; font-weight:700; letter-spacing:-0.025em; color:#FFFFFF !important;">Dengan Semantik Frame</h4>
                 <ul class="compare-list">
-                    <li>✓ Frasa kontekstual 2–3 kata dengan preposisi Arab dipertahankan</li>
-                    <li>✓ Pembagian data 85% Latih / 10% Validasi (N={svm_frame['support']:,}) / 5% Uji</li>
-                    <li>✓ Akurasi SVM Tertinggi: <strong>{svm_frame['accuracy'] * 100:.2f}%</strong> (F1 = {svm_frame['f1_score']:.4f})</li>
-                    <li>✓ Menangkap hubungan sintaksis-semantik antar-konsep berita</li>
+                    <li>&#10003; Frasa kontekstual 2&ndash;3 kata dengan preposisi Arab dipertahankan</li>
+                    <li>&#10003; Pembagian data 85% Latih / 10% Validasi (N={svm_frame['support']:,}) / 5% Uji</li>
+                    <li>&#10003; Akurasi SVM Tertinggi: <strong>{svm_frame['accuracy'] * 100:.2f}%</strong> (F1 = {svm_frame['f1_score']:.4f})</li>
+                    <li>&#10003; Menangkap hubungan sintaksis-semantik antar-konsep berita</li>
                 </ul>
             </div>
         </div>
@@ -1401,30 +1569,30 @@ def _render_evaluation_tab(
 
     min_acc = float(min(perf_df["Akurasi Frame"].min(), perf_df["Akurasi Medan"].min()) * 100)
     b1 = axes[0].bar(x - w / 2, perf_df["Akurasi Frame"] * 100, w, label="Semantik Frame", color=INDIGO_PRIMARY)
-    b2 = axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color=TEAL_SECONDARY)
+    b2 = axes[0].bar(x + w / 2, perf_df["Akurasi Medan"] * 100, w, label="Medan Makna", color=AZURE_ACCENT)
     axes[0].set_ylim(max(0.0, min_acc - 5.0), 96.0)
     axes[0].set_xticks(x)
     axes[0].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
     axes[0].set_title("Akurasi (%)", fontsize=11, pad=10)
-    axes[0].grid(axis="y", linestyle="--", alpha=0.3)
+    _apply_chart_theme(axes[0], grid_axis="y")
 
     axes[1].bar(x - w / 2, eff_df["Waktu Frame (s)"], w, color=INDIGO_PRIMARY)
-    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, color=TEAL_SECONDARY)
+    axes[1].bar(x + w / 2, eff_df["Waktu Medan (s)"], w, color=AZURE_ACCENT)
     max_t = float(max(eff_df["Waktu Frame (s)"].max(), eff_df["Waktu Medan (s)"].max()))
     axes[1].set_ylim(0, max_t * 1.15 if max_t else 1.0)
     axes[1].set_xticks(x)
     axes[1].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
     axes[1].set_title("Waktu Evaluasi (detik)", fontsize=11, pad=10)
-    axes[1].grid(axis="y", linestyle="--", alpha=0.3)
+    _apply_chart_theme(axes[1], grid_axis="y")
 
     axes[2].bar(x - w / 2, eff_df["RAM Frame (MB)"], w, color=INDIGO_PRIMARY)
-    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, color=TEAL_SECONDARY)
+    axes[2].bar(x + w / 2, eff_df["RAM Medan (MB)"], w, color=AZURE_ACCENT)
     max_r = float(max(eff_df["RAM Frame (MB)"].max(), eff_df["RAM Medan (MB)"].max()))
     axes[2].set_ylim(0, max_r * 1.15 if max_r else 1.0)
     axes[2].set_xticks(x)
     axes[2].set_xticklabels(short_names, rotation=24, ha="right", fontsize=9.5)
     axes[2].set_title("Penggunaan RAM Puncak (MB)", fontsize=11, pad=10)
-    axes[2].grid(axis="y", linestyle="--", alpha=0.3)
+    _apply_chart_theme(axes[2], grid_axis="y")
 
     fig.legend(
         [b1[0], b2[0]],
@@ -1477,11 +1645,12 @@ def _render_evaluation_tab(
     with cm_col1:
         labels_ar = [reshape_arabic_for_plot(LABELS[i]) for i in range(1, 12)]
         fig_cm, ax_cm = plt.subplots(figsize=(9.8, 8.4))
+        cm_cmap = sns.light_palette(INDIGO_PRIMARY, as_cmap=True)
         sns.heatmap(
             active_svm["confusion_matrix"],
             annot=True,
             fmt="d",
-            cmap="Purples",
+            cmap=cm_cmap,
             xticklabels=labels_ar,
             yticklabels=labels_ar,
             cbar_kws={"shrink": 0.82},
@@ -1491,9 +1660,11 @@ def _render_evaluation_tab(
             f"Confusion Matrix SVM — Akurasi: {active_svm['accuracy'] * 100:.2f}% (N = {active_svm['support']:,})",
             fontsize=11.5,
             pad=14,
+            color=INK_DARK,
+            fontweight="bold",
         )
-        ax_cm.set_xlabel("Prediksi", fontsize=10.5, labelpad=8)
-        ax_cm.set_ylabel("Aktual", fontsize=10.5, labelpad=8)
+        ax_cm.set_xlabel("Prediksi", fontsize=10.5, labelpad=8, color="#475569")
+        ax_cm.set_ylabel("Aktual", fontsize=10.5, labelpad=8, color="#475569")
         ax_cm.set_xticklabels(labels_ar, rotation=32, ha="right", fontsize=10)
         ax_cm.set_yticklabels(labels_ar, rotation=0, fontsize=10)
         if font_prop:
@@ -1507,11 +1678,28 @@ def _render_evaluation_tab(
         best_row = per_class_df.sort_values("F1-Score", ascending=False).iloc[0]
         low_row = per_class_df.sort_values("F1-Score", ascending=True).iloc[0]
         st.markdown("##### Ringkasan Performa Kategori")
-        st.success(
-            f"**F1 Tertinggi**: {best_row['Kategori']} ({best_row['Arab']}) — `{best_row['F1-Score']:.4f}`"
-        )
-        st.info(
-            f"**F1 Terendah**: {low_row['Kategori']} ({low_row['Arab']}) — `{low_row['F1-Score']:.4f}`"
+        st.markdown(
+            f"""
+            <div class="pred-card frame" style="margin-bottom:0.75rem;">
+                <div class="pred-card-head">
+                    <span class="pred-scheme-tag">F1 Tertinggi</span>
+                    <span class="pred-cat-ar">{html.escape(str(best_row['Arab']))}</span>
+                </div>
+                <div class="pred-cat-main" style="margin-bottom:0.2rem; font-size:1.15rem;">
+                    {html.escape(str(best_row['Kategori']))} &mdash; <code>{best_row['F1-Score']:.4f}</code>
+                </div>
+            </div>
+            <div class="pred-card medan" style="margin-bottom:0.75rem;">
+                <div class="pred-card-head">
+                    <span class="pred-scheme-tag">F1 Terendah</span>
+                    <span class="pred-cat-ar">{html.escape(str(low_row['Arab']))}</span>
+                </div>
+                <div class="pred-cat-main" style="margin-bottom:0.2rem; font-size:1.15rem;">
+                    {html.escape(str(low_row['Kategori']))} &mdash; <code>{low_row['F1-Score']:.4f}</code>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         st.caption(
             "Nilai diagonal pada matriks menunjukkan jumlah prediksi benar per kategori, "
@@ -1535,7 +1723,7 @@ def _render_methodology_tab() -> None:
     st.markdown(
         """
         <div class="method-band">
-            <h3 style="margin:0 0 0.35rem 0; font-size:1.35rem; font-weight:800; color:#FFFFFF;">
+            <h3 style="margin:0 0 0.35rem 0; font-size:1.38rem; font-weight:700; letter-spacing:-0.025em; color:#FFFFFF !important;">
                 Metodologi Penelitian &amp; Arsitektur Sistem
             </h3>
             <p style="margin:0; font-size:0.9rem; color:rgba(255,255,255,0.88);">
@@ -1585,7 +1773,7 @@ def main() -> None:
     eval_tables = get_cached_evaluation_tables()
     font_prop = _get_font_prop()
 
-    _render_sidebar(corpus_stats, eval_tables)
+    _render_top_navbar()
     _render_hero_banner(corpus_stats, eval_tables)
 
     tab1, tab2, tab3, tab4 = st.tabs(
