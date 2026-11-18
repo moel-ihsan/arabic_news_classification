@@ -1,0 +1,2 @@
+Model: SVC
+SVC Total CPU Usage: 98.75% | Max Memory Usage: 2982.23 MB

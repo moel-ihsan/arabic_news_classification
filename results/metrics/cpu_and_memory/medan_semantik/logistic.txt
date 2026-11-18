@@ -1,0 +1,2 @@
+Model: LogisticRegression
+LogisticRegression Total CPU Usage: 656.84% | Max Memory Usage: 946.28 MB

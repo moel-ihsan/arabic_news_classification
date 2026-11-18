@@ -1,0 +1,6 @@
+Model,Waktu Frame (s),Waktu Medan (s),RAM Frame (MB),RAM Medan (MB),Kenaikan RAM (%),CPU Frame (%),CPU Medan (%)
+SVM (LinearSVC C=10),2.0609,0.1099,2982.23,1107.53,169.27,98.75,99.11
+Logistic Regression,3.7081,0.11,4013.31,946.28,324.11,299.19,656.84
+Naïve Bayes,2.6702,0.0852,3829.72,390.92,879.67,63.53,80.2
+Random Forest,142.1841,2.8103,3263.75,2184.48,49.41,435.4,754.3
+Gradient Boosting,4.7601,4.5862,2266.72,1701.52,33.22,99.0,99.87

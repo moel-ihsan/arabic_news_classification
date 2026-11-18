@@ -1,0 +1,180 @@
+{
+  "total_raw_rows": 171175,
+  "empty_text_rows": 241,
+  "total_valid_articles": 170934,
+  "category_distribution": [
+    {
+      "Label": 1,
+      "Kategori": "أمن",
+      "Terjemahan": "Keamanan",
+      "Artikel Valid": 17341,
+      "Persentase (%)": 10.1,
+      "Artikel Mentah": 17341,
+      "Baris Kosong": 0
+    },
+    {
+      "Label": 2,
+      "Kategori": "اقتصاد",
+      "Terjemahan": "Ekonomi",
+      "Artikel Valid": 15899,
+      "Persentase (%)": 9.3,
+      "Artikel Mentah": 15904,
+      "Baris Kosong": 5
+    },
+    {
+      "Label": 3,
+      "Kategori": "تكنولوجيا",
+      "Terjemahan": "Teknologi",
+      "Artikel Valid": 11036,
+      "Persentase (%)": 6.5,
+      "Artikel Mentah": 11048,
+      "Baris Kosong": 12
+    },
+    {
+      "Label": 4,
+      "Kategori": "ثقافة",
+      "Terjemahan": "Budaya",
+      "Artikel Valid": 10844,
+      "Persentase (%)": 6.3,
+      "Artikel Mentah": 10844,
+      "Baris Kosong": 0
+    },
+    {
+      "Label": 5,
+      "Kategori": "دوليات",
+      "Terjemahan": "Internasional",
+      "Artikel Valid": 17964,
+      "Persentase (%)": 10.5,
+      "Artikel Mentah": 17964,
+      "Baris Kosong": 0
+    },
+    {
+      "Label": 6,
+      "Kategori": "رياضة",
+      "Terjemahan": "Olahraga",
+      "Artikel Valid": 18612,
+      "Persentase (%)": 10.9,
+      "Artikel Mentah": 18612,
+      "Baris Kosong": 0
+    },
+    {
+      "Label": 7,
+      "Kategori": "سياحة",
+      "Terjemahan": "Travel / Pariwisata",
+      "Artikel Valid": 18250,
+      "Persentase (%)": 10.7,
+      "Artikel Mentah": 18253,
+      "Baris Kosong": 3
+    },
+    {
+      "Label": 8,
+      "Kategori": "سياسة",
+      "Terjemahan": "Politik",
+      "Artikel Valid": 18295,
+      "Persentase (%)": 10.7,
+      "Artikel Mentah": 18382,
+      "Baris Kosong": 87
+    },
+    {
+      "Label": 9,
+      "Kategori": "صحة",
+      "Terjemahan": "Kesehatan",
+      "Artikel Valid": 13260,
+      "Persentase (%)": 7.8,
+      "Artikel Mentah": 13361,
+      "Baris Kosong": 101
+    },
+    {
+      "Label": 10,
+      "Kategori": "علم",
+      "Terjemahan": "Sains",
+      "Artikel Valid": 14199,
+      "Persentase (%)": 8.3,
+      "Artikel Mentah": 14231,
+      "Baris Kosong": 32
+    },
+    {
+      "Label": 11,
+      "Kategori": "مجتمع",
+      "Terjemahan": "Masyarakat / Komunitas",
+      "Artikel Valid": 15234,
+      "Persentase (%)": 8.9,
+      "Artikel Mentah": 15235,
+      "Baris Kosong": 1
+    }
+  ],
+  "source_distribution": [
+    {
+      "Kode Sumber": "alsumaria",
+      "Portal Berita": "alsumaria.tv",
+      "Asal Negara": "Irak",
+      "Jumlah Artikel": 73196,
+      "Persentase (%)": 42.8
+    },
+    {
+      "Kode Sumber": "alsharq",
+      "Portal Berita": "al-sharq.com",
+      "Asal Negara": "Qatar",
+      "Jumlah Artikel": 41159,
+      "Persentase (%)": 24.1
+    },
+    {
+      "Kode Sumber": "assahraa",
+      "Portal Berita": "assahraa.ma",
+      "Asal Negara": "Maroko",
+      "Jumlah Artikel": 28601,
+      "Persentase (%)": 16.7
+    },
+    {
+      "Kode Sumber": "akhbarelsyaha",
+      "Portal Berita": "akhbarelsyaha.com",
+      "Asal Negara": "Mesir",
+      "Jumlah Artikel": 15002,
+      "Persentase (%)": 8.8
+    },
+    {
+      "Kode Sumber": "saraya",
+      "Portal Berita": "sarayanews.com",
+      "Asal Negara": "Yordania",
+      "Jumlah Artikel": 7805,
+      "Persentase (%)": 4.6
+    },
+    {
+      "Kode Sumber": "addustour",
+      "Portal Berita": "addustour.com",
+      "Asal Negara": "Yordania",
+      "Jumlah Artikel": 5171,
+      "Persentase (%)": 3.0
+    }
+  ],
+  "tokens_per_category": {
+    "أمن": 4102495,
+    "اقتصاد": 3636123,
+    "تكنولوجيا": 2751310,
+    "ثقافة": 2086216,
+    "دوليات": 5608498,
+    "رياضة": 5476537,
+    "سياحة": 5608691,
+    "سياسة": 3895209,
+    "صحة": 3004546,
+    "علم": 3438063,
+    "مجتمع": 3053815
+  },
+  "nostop_tokens_per_category": {
+    "أمن": 2958278,
+    "اقتصاد": 2492920,
+    "تكنولوجيا": 1961766,
+    "ثقافة": 1451200,
+    "دوليات": 4033241,
+    "رياضة": 3974500,
+    "سياحة": 4138059,
+    "سياسة": 2882240,
+    "صحة": 2085092,
+    "علم": 2374822,
+    "مجتمع": 2207532
+  },
+  "total_tokens": 42661503,
+  "arabic_word_types": 754584,
+  "nonarabic_word_types": 74727,
+  "repeated_tokens_diff": 41832192
+}

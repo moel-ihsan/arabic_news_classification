@@ -1,0 +1,102 @@
+{
+  "medan_makna_80_15_5": {
+    "train": 136746,
+    "val": 25641,
+    "test": 8547
+  },
+  "frame_semantik_85_10_5": {
+    "train": 145293,
+    "val": 17094,
+    "test": 8547
+  },
+  "per_category": [
+    {
+      "Label": 1,
+      "Kategori": "أمن",
+      "Frame Train (85%)": 14740,
+      "Frame Val (10%)": 1734,
+      "Frame Test (5%)": 867,
+      "Medan Val (15%)": 2702
+    },
+    {
+      "Label": 2,
+      "Kategori": "اقتصاد",
+      "Frame Train (85%)": 13514,
+      "Frame Val (10%)": 1590,
+      "Frame Test (5%)": 795,
+      "Medan Val (15%)": 2409
+    },
+    {
+      "Label": 3,
+      "Kategori": "تكنولوجيا",
+      "Frame Train (85%)": 9381,
+      "Frame Val (10%)": 1103,
+      "Frame Test (5%)": 552,
+      "Medan Val (15%)": 1629
+    },
+    {
+      "Label": 4,
+      "Kategori": "ثقافة",
+      "Frame Train (85%)": 9217,
+      "Frame Val (10%)": 1085,
+      "Frame Test (5%)": 542,
+      "Medan Val (15%)": 1576
+    },
+    {
+      "Label": 5,
+      "Kategori": "دوليات",
+      "Frame Train (85%)": 15269,
+      "Frame Val (10%)": 1797,
+      "Frame Test (5%)": 898,
+      "Medan Val (15%)": 2680
+    },
+    {
+      "Label": 6,
+      "Kategori": "رياضة",
+      "Frame Train (85%)": 15820,
+      "Frame Val (10%)": 1861,
+      "Frame Test (5%)": 931,
+      "Medan Val (15%)": 2807
+    },
+    {
+      "Label": 7,
+      "Kategori": "سياحة",
+      "Frame Train (85%)": 15512,
+      "Frame Val (10%)": 1826,
+      "Frame Test (5%)": 912,
+      "Medan Val (15%)": 2637
+    },
+    {
+      "Label": 8,
+      "Kategori": "سياسة",
+      "Frame Train (85%)": 15551,
+      "Frame Val (10%)": 1829,
+      "Frame Test (5%)": 915,
+      "Medan Val (15%)": 2807
+    },
+    {
+      "Label": 9,
+      "Kategori": "صحة",
+      "Frame Train (85%)": 11271,
+      "Frame Val (10%)": 1326,
+      "Frame Test (5%)": 663,
+      "Medan Val (15%)": 1971
+    },
+    {
+      "Label": 10,
+      "Kategori": "علم",
+      "Frame Train (85%)": 12069,
+      "Frame Val (10%)": 1420,
+      "Frame Test (5%)": 710,
+      "Medan Val (15%)": 2127
+    },
+    {
+      "Label": 11,
+      "Kategori": "مجتمع",
+      "Frame Train (85%)": 12949,
+      "Frame Val (10%)": 1523,
+      "Frame Test (5%)": 762,
+      "Medan Val (15%)": 2296
+    }
+  ]
+}
