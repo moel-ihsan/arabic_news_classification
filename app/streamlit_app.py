@@ -416,20 +416,20 @@ def _inject_design_system_styles() -> None:
         .hero-bento {
             background: linear-gradient(135deg, #4B44F6 0%, #4E8BFF 100%);
             border-radius: 22px;
-            padding: 2.15rem 2.35rem;
+            padding: 1.75rem 2rem;
             color: #FFFFFF;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.15rem;
             display: grid;
-            grid-template-columns: 1.38fr 1fr;
-            gap: 2rem;
+            grid-template-columns: 1.32fr 1fr;
+            gap: 1.5rem;
             align-items: center;
         }
         .hero-title {
-            font-size: 2.25rem;
+            font-size: 1.95rem;
             font-weight: 700;
-            line-height: 1.12;
-            letter-spacing: -0.034em;
-            margin: 0 0 0.8rem 0;
+            line-height: 1.14;
+            letter-spacing: -0.032em;
+            margin: 0 0 0.65rem 0;
             color: #FFFFFF !important;
         }
         .hero-subtitle {
@@ -529,11 +529,11 @@ def _inject_design_system_styles() -> None:
         /* Pill Tabs (cocok dengan div[role="tab"] Streamlit 1.50) */
         .stTabs [role="tablist"] {
             background-color: var(--surface-card) !important;
-            padding: 7px 9px !important;
+            padding: 6px 8px !important;
             border-radius: 9999px !important;
             border: 1px solid var(--border-hairline) !important;
             box-shadow: none !important;
-            gap: 6px !important;
+            gap: 4px !important;
             margin-bottom: 1.05rem !important;
         }
         .stTabs [role="tablist"] > div:not([role="tab"]):not(:has([role="tab"])) {
@@ -554,11 +554,11 @@ def _inject_design_system_styles() -> None:
             align-items: center !important;
             justify-content: center !important;
             border-radius: 9999px !important;
-            padding: 0.56rem 1.18rem !important;
-            min-height: 40px !important;
+            padding: 0.5rem 0.88rem !important;
+            min-height: 38px !important;
             height: auto !important;
             font-weight: 600 !important;
-            font-size: 0.89rem !important;
+            font-size: 0.84rem !important;
             color: var(--ink-muted) !important;
             background-color: transparent !important;
             border: none !important;
@@ -757,6 +757,21 @@ def _inject_design_system_styles() -> None:
             background: rgba(255, 255, 255, 0.2);
             color: #FFFFFF;
         }
+        .compare-card-highlight .compare-title,
+        [data-testid="stMarkdownContainer"] .compare-card-highlight h4 {
+            color: #FFFFFF !important;
+            margin: 0 0 0.2rem 0 !important;
+            font-size: 1.12rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.025em !important;
+        }
+        .compare-card-muted .compare-title {
+            color: var(--ink-dark) !important;
+            margin: 0 0 0.2rem 0 !important;
+            font-size: 1.12rem !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.025em !important;
+        }
         .compare-list {
             list-style: none;
             padding: 0;
@@ -920,7 +935,7 @@ def _inject_design_system_styles() -> None:
             border: 1px solid rgba(255, 255, 255, 0.20);
         }
 
-        @media (max-width: 860px) {
+        @media (max-width: 720px) {
             .top-nav {
                 border-radius: 18px;
                 flex-wrap: wrap;
@@ -1531,7 +1546,7 @@ def _render_evaluation_tab(
         <div class="compare-grid">
             <div class="compare-card-muted">
                 <span class="compare-tag">Baseline Leksikal</span>
-                <h4 style="margin:0 0 0.2rem 0; font-size:1.12rem; font-weight:700; letter-spacing:-0.025em;">Medan Makna (Tanpa Semantik Frame)</h4>
+                <div class="compare-title">Medan Makna (Tanpa Semantik Frame)</div>
                 <ul class="compare-list">
                     <li>&bull; Representasi kata leksikal inti (penghapusan kata henti)</li>
                     <li>&bull; Pembagian data 80% Latih / 15% Validasi (N={svm_medan['support']:,}) / 5% Uji</li>
@@ -1541,7 +1556,7 @@ def _render_evaluation_tab(
             </div>
             <div class="compare-card-highlight">
                 <span class="compare-tag">Pendekatan Unggulan</span>
-                <h4 style="margin:0 0 0.2rem 0; font-size:1.12rem; font-weight:700; letter-spacing:-0.025em; color:#FFFFFF !important;">Dengan Semantik Frame</h4>
+                <div class="compare-title">Dengan Semantik Frame</div>
                 <ul class="compare-list">
                     <li>&#10003; Frasa kontekstual 2&ndash;3 kata dengan preposisi Arab dipertahankan</li>
                     <li>&#10003; Pembagian data 85% Latih / 10% Validasi (N={svm_frame['support']:,}) / 5% Uji</li>
@@ -1723,9 +1738,9 @@ def _render_methodology_tab() -> None:
     st.markdown(
         """
         <div class="method-band">
-            <h3 style="margin:0 0 0.35rem 0; font-size:1.38rem; font-weight:700; letter-spacing:-0.025em; color:#FFFFFF !important;">
+            <div style="margin:0 0 0.35rem 0; font-size:1.38rem; font-weight:700; letter-spacing:-0.025em; color:#FFFFFF;">
                 Metodologi Penelitian &amp; Arsitektur Sistem
-            </h3>
+            </div>
             <p style="margin:0; font-size:0.9rem; color:rgba(255,255,255,0.88);">
                 Seluruh eksperimen direproduksi dari sumber data tunggal <code>data/basic_articles_dataset.csv</code> dan <code>data/stopwords.txt</code>.
             </p>
