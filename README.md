@@ -95,7 +95,7 @@ arabic_news_classification/
 Direkomendasikan menggunakan Python `3.9`–`3.11` pada *virtual environment* baru:
 
 ```bash
-git clone <url-repositori-ini>
+git clone https://github.com/moel-ihsan/arabic_news_classification.git
 cd arabic_news_classification
 
 python3 -m venv .venv

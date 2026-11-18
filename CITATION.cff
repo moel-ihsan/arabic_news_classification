@@ -8,6 +8,8 @@ authors:
     email: "23201011009@student.uin-suka.ac.id"
     affiliation: "Universitas Islam Negeri Sunan Kalijaga Yogyakarta"
 license: MIT
+repository-code: "https://github.com/moel-ihsan/arabic_news_classification"
+url: "https://github.com/moel-ihsan/arabic_news_classification"
 keywords:
   - arabic-nlp
   - text-classification

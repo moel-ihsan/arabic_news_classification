@@ -34,6 +34,10 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[project.urls]
+Homepage = "https://github.com/moel-ihsan/arabic_news_classification"
+Repository = "https://github.com/moel-ihsan/arabic_news_classification"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
