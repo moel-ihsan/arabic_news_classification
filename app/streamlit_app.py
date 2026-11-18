@@ -1028,7 +1028,7 @@ def _render_top_navbar() -> None:
             <div class="top-nav-meta">11 Kategori &middot; 6 Portal Berita Arab</div>
             <div class="top-nav-actions">
                 <a class="top-nav-link" href="{JOURNAL_DOI_URL}" target="_blank" rel="noopener">Jurnal SiELE</a>
-                <a class="top-nav-link" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis UIN</a>
+                <a class="top-nav-link" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis</a>
                 <a class="top-nav-link primary" href="{GITHUB_REPO_URL}" target="_blank" rel="noopener">GitHub</a>
             </div>
         </div>
@@ -1096,7 +1096,7 @@ def _render_footer() -> None:
             </div>
             <div class="footer-links">
                 <a class="footer-btn" href="{JOURNAL_DOI_URL}" target="_blank" rel="noopener">Jurnal SiELE</a>
-                <a class="footer-btn outline" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis UIN</a>
+                <a class="footer-btn outline" href="{THESIS_REPO_URL}" target="_blank" rel="noopener">Tesis</a>
                 <a class="footer-btn outline" href="{GITHUB_REPO_URL}" target="_blank" rel="noopener">GitHub</a>
             </div>
         </div>
