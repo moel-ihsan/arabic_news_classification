@@ -294,9 +294,18 @@ def test_stage3_stage4_stage5_end_to_end_pipeline(tmp_path):
     dual = analyze_article_dual_svm(sport_article, bundles=bundles, stopwords=stops)
     assert dual["medan_makna"]["predicted_label"] == 6
     assert dual["frame_semantik"]["predicted_label"] == 6
+    assert dual["medan_makna"]["is_uncategorized"] is False
+    assert dual["frame_semantik"]["is_uncategorized"] is False
     assert len(dual["medan_makna"]["features_by_tfidf"]) > 0
     assert len(dual["frame_semantik"]["features_by_tfidf"]) > 0
     assert math.isclose(float(sigmoid(0.0) * 100.0), 50.0, rel_tol=1e-9)
+
+    for oov_txt in ["Hello world 12345", "كلمةغيرموجودة إطلاقانهائيا"]:
+        oov_res = analyze_article_dual_svm(oov_txt, bundles=bundles, stopwords=stops)
+        assert oov_res["medan_makna"]["is_uncategorized"] is True
+        assert oov_res["frame_semantik"]["is_uncategorized"] is True
+        assert oov_res["medan_makna"]["predicted_label"] is None
+        assert oov_res["frame_semantik"]["predicted_category_en"] == "Uncategorized"
 
     sys.path.insert(0, str(REPO_ROOT))
     from app.streamlit_app import (
@@ -329,12 +338,27 @@ def test_stage3_stage4_stage5_end_to_end_pipeline(tmp_path):
 
 
 def test_streamlit_app_renders_cleanly_before_notebook_execution():
-    """Pastikan app/streamlit_app.py berjalan tanpa exception meski results/ dan models/ belum dibuat."""
+    """Pastikan app/streamlit_app.py berjalan tanpa exception, mendukung tombol submit, contoh paling bawah, dan Uncategorized."""
     from streamlit.testing.v1 import AppTest
 
-    at = AppTest.from_file(str(REPO_ROOT / "app" / "streamlit_app.py"), default_timeout=20)
+    at = AppTest.from_file(str(REPO_ROOT / "app" / "streamlit_app.py"), default_timeout=25)
     at.run()
     assert not at.exception
+    # Opsi pertama paling atas adalah Tulis / Tempel Teks Arab Sendiri
+    assert at.selectbox[0].options[0] == "Tulis / Tempel Teks Arab Sendiri"
+
+    # Uji tombol submit pada teks non-Arab -> tampilkan Tidak Terkategori (Uncategorized)
+    at.text_area[0].input("testing unknown non arabic text 12345")
+    at.button[0].click()
+    at.run()
+    assert not at.exception
+    assert any("Uncategorized" in w.value for w in at.warning)
+
+    # Uji memilih contoh artikel dari dropdown
+    if len(at.selectbox[0].options) > 1:
+        at.selectbox[0].select(at.selectbox[0].options[1])
+        at.run()
+        assert not at.exception
 
 
 def test_notebooks_and_repo_cleanliness():

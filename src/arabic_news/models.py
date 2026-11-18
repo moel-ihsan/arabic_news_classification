@@ -1,6 +1,7 @@
 """Definisi lima algoritma klasifikasi, pembuatan bundel SVM deployable, dan ekstraksi fitur."""
 
 from pathlib import Path
+import re
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import joblib
@@ -282,12 +283,14 @@ def extract_features_and_svm_weights(
     """Memprediksi kategori, skor sigmoid 11 kelas, bobot TF-IDF, dan koefisien SVM tiap fitur."""
     input_text = cleaned_text if cleaned_text is not None else str(text)
     tfidf_mat = vectorizer.transform([input_text])
-    pred_label = int(classifier.predict(tfidf_mat)[0])
+    row_vec = tfidf_mat[0]
+    active_indices = row_vec.indices
+    has_arabic = bool(re.search(r"[\u0600-\u06FF]", str(text)))
+    is_uncategorized = (len(active_indices) == 0) or (not has_arabic)
 
     raw_scores = classifier.decision_function(tfidf_mat)[0]
     sigmoid_probs = sigmoid(raw_scores) * 100.0
     classes = [int(c) for c in classifier.classes_]
-    pred_class_idx = classes.index(pred_label)
 
     category_scores: List[Dict[str, Any]] = []
     for idx, cid in enumerate(classes):
@@ -303,9 +306,28 @@ def extract_features_and_svm_weights(
         )
     category_scores.sort(key=lambda item: item["sigmoid_percent"], reverse=True)
 
+    if is_uncategorized:
+        return {
+            "is_uncategorized": True,
+            "cleaned_text": input_text,
+            "predicted_label": None,
+            "predicted_category": "غير مصنف",
+            "predicted_category_id": "Tidak Terkategori",
+            "predicted_category_en": "Uncategorized",
+            "intercept": 0.0,
+            "total_tfidf_weight": 0.0,
+            "total_positive_coef": 0.0,
+            "total_negative_coef": 0.0,
+            "n_active_features": 0,
+            "category_scores": category_scores,
+            "features_by_tfidf": [],
+            "positive_coefs": [],
+            "negative_coefs": [],
+        }
+
+    pred_label = int(classifier.predict(tfidf_mat)[0])
+    pred_class_idx = classes.index(pred_label)
     feature_names = vectorizer.get_feature_names_out()
-    row_vec = tfidf_mat[0]
-    active_indices = row_vec.indices
     coef_row = classifier.coef_[pred_class_idx]
 
     features_detail: List[Dict[str, Any]] = []
@@ -334,6 +356,7 @@ def extract_features_and_svm_weights(
     )
 
     return {
+        "is_uncategorized": False,
         "cleaned_text": input_text,
         "predicted_label": pred_label,
         "predicted_category": LABELS.get(pred_label, str(pred_label)),
