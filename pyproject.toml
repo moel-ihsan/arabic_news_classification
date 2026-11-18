@@ -12,7 +12,7 @@ authors = [
     { name = "Maulana Ihsan Ahmad" },
 ]
 dependencies = [
-    "scikit-learn==1.1.1",
+    "scikit-learn>=1.1.1,<1.2",
     "pandas==2.1.3",
     "numpy==1.26.2",
     "scipy==1.11.3",
