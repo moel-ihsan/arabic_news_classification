@@ -926,7 +926,13 @@ def _render_evaluation_tab(
         ]
     )
 
-    cm_col1, cm_col2 = st.columns([1.45, 1])
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("Akurasi SVM", f"{active_svm['accuracy'] * 100:.2f}%")
+    s2.metric("Total Sampel", f"{active_svm['support']:,}")
+    s3.metric("Precision", f"{active_svm['precision']:.4f}")
+    s4.metric("F1-Score", f"{active_svm['f1_score']:.4f}")
+
+    cm_col1, cm_col2 = st.columns([1.5, 1])
     with cm_col1:
         labels_ar = [reshape_arabic_for_plot(LABELS[i]) for i in range(1, 12)]
         fig_cm, ax_cm = plt.subplots(figsize=(9.8, 8.4))
@@ -959,18 +965,16 @@ def _render_evaluation_tab(
     with cm_col2:
         best_row = per_class_df.sort_values("F1-Score", ascending=False).iloc[0]
         low_row = per_class_df.sort_values("F1-Score", ascending=True).iloc[0]
-        st.markdown("##### Ringkasan Evaluasi SVM")
-        s1, s2 = st.columns(2)
-        s1.metric("Akurasi", f"{active_svm['accuracy'] * 100:.2f}%")
-        s2.metric("Total Sampel", f"{active_svm['support']:,}")
-        s3, s4 = st.columns(2)
-        s3.metric("Precision", f"{active_svm['precision']:.4f}")
-        s4.metric("F1-Score", f"{active_svm['f1_score']:.4f}")
+        st.markdown("##### Ringkasan Performa Kategori")
         st.success(
             f"**F1 Tertinggi**: {best_row['Kategori']} ({best_row['Arab']}) — `{best_row['F1-Score']:.4f}`"
         )
         st.info(
             f"**F1 Terendah**: {low_row['Kategori']} ({low_row['Arab']}) — `{low_row['F1-Score']:.4f}`"
+        )
+        st.caption(
+            "Nilai diagonal pada matriks menunjukkan jumlah prediksi benar per kategori, "
+            "sedangkan angka di luar diagonal menunjukkan jumlah artikel yang tertukar antarkelas."
         )
 
     st.markdown("##### Rincian Metrik Per-Kategori")
