@@ -338,23 +338,23 @@ def test_stage3_stage4_stage5_end_to_end_pipeline(tmp_path):
 
 
 def test_streamlit_app_renders_cleanly_before_notebook_execution():
-    """Pastikan app/streamlit_app.py berjalan tanpa exception, mendukung tombol submit, contoh paling bawah, dan Uncategorized."""
+    """Verify app/streamlit_app.py renders without exceptions and supports submit, sample selection, and Uncategorized."""
     from streamlit.testing.v1 import AppTest
 
     at = AppTest.from_file(str(REPO_ROOT / "app" / "streamlit_app.py"), default_timeout=25)
     at.run()
     assert not at.exception
-    # Opsi pertama paling atas adalah Tulis / Tempel Teks Arab Sendiri
-    assert at.selectbox[0].options[0] == "Tulis / Tempel Teks Arab Sendiri"
+    # Top option is the user custom text entry mode
+    assert at.selectbox[0].options[0] == "Write / Paste Arabic Text"
 
-    # Uji tombol submit pada teks non-Arab -> tampilkan Tidak Terkategori (Uncategorized)
+    # Test submit button on non-Arabic text -> displays Uncategorized warning
     at.text_area[0].input("testing unknown non arabic text 12345")
     at.button[0].click()
     at.run()
     assert not at.exception
     assert any("Uncategorized" in w.value for w in at.warning)
 
-    # Uji memilih contoh artikel dari dropdown
+    # Test selecting a representative sample article
     if len(at.selectbox[0].options) > 1:
         at.selectbox[0].select(at.selectbox[0].options[1])
         at.run()
