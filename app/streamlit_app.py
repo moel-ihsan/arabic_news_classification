@@ -944,13 +944,14 @@ def _inject_design_system_styles() -> None:
             padding: 0.08rem 0.38rem;
             border-radius: 6px;
         }
-        textarea[aria-label*="artikel berita Arab"] {
+        [data-testid="stTextArea"] textarea,
+        textarea[aria-label*="Arabic news article"] {
             direction: rtl !important;
             text-align: right !important;
             unicode-bidi: plaintext !important;
             font-family: 'Amiri', 'Traditional Arabic', 'Geeza Pro', 'Arial', sans-serif !important;
-            font-size: 1.12rem !important;
-            line-height: 1.85 !important;
+            font-size: 1.16rem !important;
+            line-height: 1.95 !important;
             background-color: var(--surface-card) !important;
             border-radius: 14px !important;
         }
