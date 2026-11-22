@@ -280,12 +280,12 @@ def get_cached_sample_articles() -> pd.DataFrame:
 
 
 @st.cache_data
-def get_cached_corpus_stats() -> Dict[str, Any]:
+def get_cached_corpus_stats(_cache_version: str = "en_v1") -> Dict[str, Any]:
     return load_dashboard_corpus_stats()
 
 
 @st.cache_data
-def get_cached_evaluation_tables() -> Dict[str, Any]:
+def get_cached_evaluation_tables(_cache_version: str = "en_v1") -> Dict[str, Any]:
     return load_evaluation_summary_tables()
 
 
@@ -1669,6 +1669,12 @@ def _render_evaluation_tab(
 
     eff_df: pd.DataFrame = eval_tables["efficiency"]
     perf_df: pd.DataFrame = eval_tables["performance"]
+    if (not perf_df.empty and "Frame Accuracy" not in perf_df.columns) or (
+        not eff_df.empty and "Frame Time (s)" not in eff_df.columns
+    ):
+        eval_tables = load_evaluation_summary_tables()
+        eff_df = eval_tables["efficiency"]
+        perf_df = eval_tables["performance"]
     svm_frame = eval_tables.get("svm_frame_detail")
     svm_medan = eval_tables.get("svm_medan_detail")
 
